@@ -1,0 +1,1077 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CABI Mock UI</title>
+<style>
+:root{
+  --bg:#0A0E14; --bg2:#0D121A; --panel:#111823; --panel2:#162030; --line:#1E2938; --line2:#2A3850;
+  --tx:#E7EDF5; --tx2:#A3B1C2; --tx3:#6E7E92;
+  --gold:#D9A55B; --cocoa:#7A4E2B;
+  --ai:#9384FF; --teal:#2EC5B6; --info:#4EA8F5;
+  --pos:#3FCF8E; --neg:#F2646F; --warn:#F3AE45; --ex:#B07CFF;
+  --shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 10px 28px rgba(0,0,0,.28);
+  --r:12px;
+}
+[data-theme=light]{
+  --bg:#F4F1EC; --bg2:#ECE7DF; --panel:#FFFFFF; --panel2:#F8F5F0; --line:#E5DFD5; --line2:#D5CCBE;
+  --tx:#1D1A16; --tx2:#544D43; --tx3:#8A8276;
+  --gold:#A66C1B; --ai:#5B49E0; --teal:#0E9488; --info:#2B79C9;
+  --pos:#1E9E63; --neg:#D2404C; --warn:#C27C10; --ex:#8A4FE0;
+  --shadow:0 1px 2px rgba(40,30,10,.06), 0 6px 18px rgba(40,30,10,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--tx);font:13px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.num,td,.kv{font-variant-numeric:tabular-nums}
+button{font:inherit}
+.app{display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100vh}
+
+/* sidebar */
+.sidebar{position:sticky;top:0;height:100vh;background:var(--bg2);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px;gap:12px;overflow:auto}
+.brand{display:flex;gap:10px;align-items:center;padding:2px 6px}
+.logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(140deg,#8A5A31,#3A2414);display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);flex:none}
+.brand b{font-size:16px;letter-spacing:.06em}
+.brand small{display:block;color:var(--tx3);font-size:10.5px;line-height:1.25}
+.tenant{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--panel)}
+.tenant .t1{font-weight:600;font-size:12px}
+.tenant .t2{color:var(--tx3);font-size:10.5px}
+.navg{display:flex;flex-direction:column;gap:2px}
+.navg .lbl{font-size:9.5px;letter-spacing:.14em;color:var(--tx3);padding:8px 10px 4px;text-transform:uppercase;display:flex;gap:6px;align-items:center}
+.nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--tx2);cursor:pointer;border:1px solid transparent;font-size:12.5px;user-select:none}
+.nav:hover{background:var(--panel);color:var(--tx)}
+.nav.active{background:var(--panel2);color:var(--tx);border-color:var(--line2)}
+.nav.active .ni{color:var(--gold)}
+.nav .ni{display:grid;place-items:center}
+.nav .cnt{margin-left:auto;font-size:10px;padding:1px 7px;border-radius:99px;background:color-mix(in oklab,var(--neg) 20%,transparent);color:var(--neg)}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px}
+.status{display:flex;gap:9px;align-items:center;font-size:11px;color:var(--tx2);padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.status b{color:var(--tx);font-weight:600;display:block;font-size:11.5px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--pos);box-shadow:0 0 0 3px color-mix(in oklab,var(--pos) 20%,transparent);flex:none}
+.dot.ai{background:var(--ai);box-shadow:0 0 0 3px color-mix(in oklab,var(--ai) 22%,transparent)}
+.dot.warn{background:var(--warn);box-shadow:0 0 0 3px color-mix(in oklab,var(--warn) 22%,transparent)}
+.dot.neg{background:var(--neg);box-shadow:0 0 0 3px color-mix(in oklab,var(--neg) 22%,transparent)}
+.fict{font-size:10px;color:var(--tx3);padding:0 6px;line-height:1.4}
+
+/* top bar */
+main{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:11px 22px;background:color-mix(in oklab,var(--bg) 86%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.ttl h1{margin:0;font-size:17px;font-weight:650;letter-spacing:-.01em;display:flex;gap:8px;align-items:center}
+.ttl p{margin:1px 0 0;color:var(--tx3);font-size:11.5px}
+.mockchip{font-size:9.5px;letter-spacing:.08em;font-weight:600;color:var(--gold);border:1px solid color-mix(in oklab,var(--gold) 45%,transparent);border-radius:99px;padding:1px 7px}
+.tools{display:flex;gap:8px;margin-left:auto;align-items:center;flex-wrap:wrap}
+.sel{appearance:none;-webkit-appearance:none;background:var(--panel) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237E8DA0' fill='none' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 9px center;border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:6px 26px 6px 10px;font:inherit;font-size:12px;cursor:pointer}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:none;padding:6px 10px;font-size:11.5px;color:var(--tx2);cursor:pointer;display:flex;gap:6px;align-items:center}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--panel2);color:var(--tx);box-shadow:inset 0 -2px 0 var(--ai)}
+.btn{border:1px solid var(--line2);background:var(--panel2);color:var(--tx);border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
+.btn:hover{border-color:var(--tx3)}
+.btn.pri{background:linear-gradient(180deg,color-mix(in oklab,var(--ai) 92%,white 8%),var(--ai));border-color:transparent;color:#fff}
+.btn.gold{background:var(--gold);border-color:transparent;color:#1b1206;font-weight:600}
+.btn.ghost{background:transparent}
+.btn.sm{padding:4px 9px;font-size:11px}
+.icon-btn{border:1px solid var(--line);background:var(--panel);color:var(--tx2);border-radius:8px;width:32px;height:30px;display:grid;place-items:center;cursor:pointer}
+.live{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:var(--tx2);border:1px solid var(--line);border-radius:99px;padding:4px 10px;background:var(--panel)}
+.blink{animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{50%{opacity:.35}}
+
+/* ticker */
+.ticker{display:flex;align-items:center;gap:12px;padding:6px 22px;border-bottom:1px solid var(--line);background:var(--bg2);font-size:11.5px;color:var(--tx2);overflow:hidden;white-space:nowrap}
+.ticker .tag{font-size:9.5px;letter-spacing:.12em;color:var(--pos);font-weight:700;flex:none}
+.track-wrap{overflow:hidden;flex:1;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.track{display:inline-flex;gap:28px;animation:scroll 90s linear infinite}
+.track span b{color:var(--tx);font-weight:600}
+.track .al{color:var(--neg)}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* layout */
+.content{padding:18px 22px 70px}
+.screen{display:none}
+.screen.active{display:flex;flex-direction:column;gap:14px;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
+.s3{grid-column:span 3}.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}.s12{grid-column:span 12}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0}
+.ph{display:flex;align-items:center;gap:8px;padding:12px 14px 0;flex-wrap:wrap}
+.ph h3{font-size:13px;font-weight:620;margin:0}
+.ph .sub{color:var(--tx3);font-size:11.5px}
+.ph .right{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pb{padding:12px 14px 14px;min-width:0}
+.ai-card{border-color:color-mix(in oklab,var(--ai) 38%,var(--line));background:linear-gradient(180deg,color-mix(in oklab,var(--ai) 7%,var(--panel)),var(--panel) 60%)}
+.ai-ic{color:var(--ai);display:grid;place-items:center}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+.kpis.k5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.kpi{padding:12px 14px;position:relative;overflow:hidden}
+.kl{color:var(--tx3);font-size:11px}
+.kv{font-size:22px;font-weight:650;letter-spacing:-.02em;margin:3px 0 2px}
+.kd{display:flex;gap:8px;font-size:11px;align-items:baseline;flex-wrap:wrap}
+.ks{color:var(--tx3)}
+.ksp{position:absolute;right:10px;top:12px;opacity:.9}
+.up{color:var(--pos)}.dn{color:var(--neg)}.wn{color:var(--warn)}.mut{color:var(--tx3)}.aic{color:var(--ai)}.gd{color:var(--gold)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;padding:2px 8px;border-radius:99px;border:1px solid var(--line2);color:var(--tx2);white-space:nowrap;line-height:1.5}
+.p-ai{color:var(--ai);border-color:color-mix(in oklab,var(--ai) 45%,transparent);background:color-mix(in oklab,var(--ai) 10%,transparent)}
+.p-neg{color:var(--neg);border-color:color-mix(in oklab,var(--neg) 45%,transparent);background:color-mix(in oklab,var(--neg) 10%,transparent)}
+.p-warn{color:var(--warn);border-color:color-mix(in oklab,var(--warn) 45%,transparent);background:color-mix(in oklab,var(--warn) 10%,transparent)}
+.p-pos{color:var(--pos);border-color:color-mix(in oklab,var(--pos) 45%,transparent);background:color-mix(in oklab,var(--pos) 10%,transparent)}
+.p-info{color:var(--info);border-color:color-mix(in oklab,var(--info) 45%,transparent);background:color-mix(in oklab,var(--info) 10%,transparent)}
+.p-gold{color:var(--gold);border-color:color-mix(in oklab,var(--gold) 45%,transparent);background:color-mix(in oklab,var(--gold) 10%,transparent)}
+.mb{display:inline-flex;gap:5px;align-items:center;font-size:10.5px;padding:2px 9px;border-radius:99px;color:var(--ai);background:color-mix(in oklab,var(--ai) 12%,transparent);border:1px solid color-mix(in oklab,var(--ai) 40%,transparent);white-space:nowrap}
+.mb.cache{color:var(--teal);background:color-mix(in oklab,var(--teal) 12%,transparent);border-color:color-mix(in oklab,var(--teal) 40%,transparent)}
+
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{color:var(--tx3);font-weight:500;text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);font-size:10.5px;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.tbl td{padding:8px;border-bottom:1px solid color-mix(in oklab,var(--line) 75%,transparent);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr:hover td{background:color-mix(in oklab,var(--panel2) 70%,transparent)}
+.r{text-align:right}.c{text-align:center}
+.tw{overflow-x:auto}
+.flag{display:inline-grid;place-items:center;width:26px;height:18px;border-radius:4px;background:var(--panel2);border:1px solid var(--line2);font-size:9.5px;font-weight:700;color:var(--tx2);margin-right:8px}
+.bar-in{height:6px;border-radius:3px;background:var(--line);overflow:hidden;min-width:36px}
+#ovTable td,#ovTable th{padding:7px 5px}
+.bar-in i{display:block;height:100%;border-radius:3px}
+
+/* briefing & recs */
+.brief{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.brief:last-child{border-bottom:0;padding-bottom:0}
+.brief:first-child{padding-top:0}
+.sev{width:3px;border-radius:3px;flex:none}
+.brief h4{margin:0 0 2px;font-size:12.5px;font-weight:600}
+.brief p{margin:0;color:var(--tx2);font-size:12px}
+.brief .acts{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;align-items:center}
+.recs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.rec{border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:var(--panel2);display:flex;flex-direction:column;gap:6px}
+.rec .top{display:flex;gap:6px;align-items:center}
+.rec h4{margin:0;font-size:12.5px;font-weight:600;line-height:1.35}
+.rec .meta{display:flex;gap:12px;font-size:11px;color:var(--tx3);flex-wrap:wrap}
+.rec .meta b{color:var(--tx);font-weight:600}
+.rec .acts{display:flex;gap:6px;margin-top:2px}
+.conf{margin-left:auto;font-size:10.5px;color:var(--tx3)}
+
+/* charts */
+.cw{position:relative}
+.chart{display:block;overflow:visible}
+.chart .ax{fill:var(--tx3);font-size:10px}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart .fcr{fill:color-mix(in oklab,var(--teal) 6%,transparent)}
+.chart .today{stroke:var(--tx3);stroke-dasharray:3 3}
+.chart .tt{fill:var(--tx2);font-size:10px;font-weight:600}
+.chart .ann{stroke:color-mix(in oklab,var(--gold) 55%,transparent);stroke-dasharray:2 3}
+.chart .annt{fill:var(--gold);font-size:9.5px}
+.chart .mkt{fill:var(--tx);font-size:10px;font-weight:600}
+.chart .xh{stroke:var(--tx3);stroke-width:1}
+.tip{position:absolute;pointer-events:none;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:7px 9px;font-size:11px;box-shadow:var(--shadow);white-space:nowrap;z-index:5}
+.tip .tr{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.sw{width:10px;height:3px;border-radius:2px;display:inline-block}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--tx2);align-items:center}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.lg-band{width:14px;height:8px;border-radius:2px;display:inline-block;opacity:.35}
+
+/* map */
+.mapbox{width:100%}
+.map .land{fill:color-mix(in oklab,var(--panel2) 85%,var(--tx3) 10%);stroke:var(--line2);stroke-width:1}
+.map .mdot{fill:color-mix(in oklab,var(--line2) 80%,var(--tx3) 20%)}
+.map .lane{fill:none;stroke:color-mix(in oklab,var(--gold) 65%,transparent);stroke-width:1.4}
+.map .lane.sea{stroke:color-mix(in oklab,var(--info) 70%,transparent);stroke-dasharray:4 4}
+.map .flow{stroke-dasharray:5 7;animation:dash 1.4s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-24}}
+.map .cl{fill:var(--tx3);font-size:9px;letter-spacing:.14em;font-weight:600}
+.map .nl{fill:var(--tx2);font-size:9.5px;font-weight:600}
+.map .bub{stroke-width:1.2}
+.pulse{animation:pulse 1.8s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+
+/* misc */
+.alert-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid color-mix(in oklab,var(--neg) 45%,transparent);background:color-mix(in oklab,var(--neg) 9%,var(--panel));font-size:12.5px;flex-wrap:wrap}
+.alert-bar.warn{border-color:color-mix(in oklab,var(--warn) 45%,transparent);background:color-mix(in oklab,var(--warn) 9%,var(--panel))}
+.alert-bar.sap{border-color:color-mix(in oklab,var(--info) 40%,transparent);background:color-mix(in oklab,var(--info) 7%,var(--panel))}
+.alert-bar .right{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.opt{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--panel2);display:flex;flex-direction:column;gap:2px}
+.opt.best{border-color:color-mix(in oklab,var(--ai) 65%,var(--line));box-shadow:0 0 0 1px color-mix(in oklab,var(--ai) 35%,transparent),0 10px 30px color-mix(in oklab,var(--ai) 14%,transparent)}
+.opt h4{margin:0;font-size:13px}
+.opt .desc{color:var(--tx3);font-size:11.5px;margin-bottom:6px;min-height:32px}
+.mrow{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-top:1px dashed color-mix(in oklab,var(--line) 80%,transparent)}
+.mrow span:first-child{color:var(--tx3)}
+.mrow b{font-weight:600}
+.drv{display:grid;grid-template-columns:150px 1fr 44px;gap:8px;align-items:center;font-size:11.5px;padding:4px 0}
+.drv .trk{position:relative;height:10px}
+.drv .trk:before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;border-left:1px solid var(--line2)}
+.drv .trk i{position:absolute;top:0;height:100%;border-radius:3px}
+.gl-item{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;padding:5px 0;color:var(--tx2)}
+.gl-item b{color:var(--tx);font-weight:600}
+.ck{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:10px;font-weight:700;margin-top:1px}
+.ck.ok{background:color-mix(in oklab,var(--pos) 20%,transparent);color:var(--pos)}
+.ck.w{background:color-mix(in oklab,var(--warn) 20%,transparent);color:var(--warn)}
+.ck.x{background:color-mix(in oklab,var(--neg) 20%,transparent);color:var(--neg)}
+.sim{display:grid;grid-template-columns:260px minmax(0,1fr);gap:18px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.ctl label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--tx2);margin-bottom:4px}
+.ctl label b{color:var(--tx)}
+input[type=range]{width:100%;accent-color:var(--ai)}
+.tog{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--tx2);cursor:pointer}
+.tog input{accent-color:var(--ai);width:15px;height:15px}
+.outs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.out{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:var(--panel2)}
+.out .l{font-size:10.5px;color:var(--tx3)}
+.out .v{font-size:16px;font-weight:650;margin-top:1px}
+.gantt{display:grid;grid-template-columns:210px minmax(0,1fr);font-size:11.5px}
+.gantt .gh{display:grid;grid-template-columns:repeat(12,1fr);color:var(--tx3);font-size:10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.gantt .gl2{padding:7px 0;border-bottom:1px dashed color-mix(in oklab,var(--line) 80%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px}
+.gantt .gt{position:relative;border-bottom:1px dashed color-mix(in oklab,var(--line) 80%,transparent)}
+.gantt .gb{position:absolute;top:6px;height:20px;border-radius:5px;font-size:10px;display:flex;align-items:center;padding:0 7px;white-space:nowrap;overflow:hidden;color:#fff;font-weight:600}
+.gantt .ev{position:absolute;top:4px;font-size:9.5px;color:var(--gold);white-space:nowrap;padding:2px 6px;border-left:2px solid var(--gold)}
+.hm{display:grid;gap:3px;font-size:10.5px}
+.hm .c{height:24px;border-radius:4px;display:grid;place-items:center;color:var(--tx)}
+.hm .rl{color:var(--tx2);display:flex;align-items:center;white-space:nowrap;overflow:hidden}
+.hm .ch{color:var(--tx3);text-align:center;font-size:9.5px}
+.trend{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--panel2);display:flex;flex-direction:column;gap:4px}
+.trend .tt2{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.trend h4{margin:0;font-size:12.5px}
+.trend .mk{font-size:10.5px;color:var(--tx3)}
+.trend .imp{font-size:11.5px;color:var(--tx2)}
+.trend .imp b{color:var(--ai);font-weight:600}
+.trends{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.feed{display:flex;flex-direction:column}
+.fi{display:flex;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:12px}
+.fi:last-child{border-bottom:0}
+.fi .tm{color:var(--tx3);font-size:10.5px;width:62px;flex:none}
+.fi .src{color:var(--tx3);font-size:10.5px}
+.stk{display:flex;height:16px;border-radius:4px;overflow:hidden;flex:1}
+.stk i{display:block;height:100%}
+.srow{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:center;padding:5px 0;font-size:11.5px}
+.wf{display:grid;grid-template-columns:170px 1fr 70px;gap:8px;align-items:center;font-size:11.5px;padding:4px 0}
+.wf .trk{position:relative;height:14px}
+.wf .trk i{position:absolute;top:0;height:100%;border-radius:3px}
+.narr{font-size:12.5px;color:var(--tx2);line-height:1.6}
+.narr b{color:var(--tx)}
+.src-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.8px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:9px 10px;white-space:pre;overflow:auto;color:var(--tx2);line-height:1.5}
+.mx{display:grid;gap:3px;font-size:10.5px}
+.mx .c{height:26px;border-radius:4px;display:grid;place-items:center;font-weight:600;cursor:default}
+.sto{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--panel2);display:flex;flex-direction:column;gap:5px}
+.sto h4{margin:0;font-size:12.5px}
+.sto .ln{font-size:11.5px;color:var(--tx2)}
+.sto .acts{display:flex;gap:6px;margin-top:3px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line2);border-radius:99px;padding:5px 11px;font-size:11.5px;color:var(--tx2);cursor:pointer;background:var(--panel)}
+.chip.on{color:var(--tx);border-color:color-mix(in oklab,var(--gold) 60%,transparent);background:color-mix(in oklab,var(--gold) 10%,var(--panel))}
+.cmp{display:grid;grid-template-columns:1fr 1fr 1fr;font-size:12px}
+.cmp div{padding:6px 8px;border-bottom:1px dashed var(--line)}
+.cmp .h{color:var(--tx3);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em}
+.route{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--panel2);display:flex;gap:10px;align-items:flex-start}
+.route .sw2{width:4px;align-self:stretch;border-radius:3px;flex:none}
+.route h4{margin:0;font-size:12px}
+.route p{margin:2px 0 0;font-size:11px;color:var(--tx3)}
+.layer{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:12px;border-bottom:1px dashed var(--line)}
+.layer:last-child{border-bottom:0}
+.layer .sw3{width:10px;height:10px;border-radius:3px;flex:none}
+.layer .v{margin-left:auto;color:var(--tx3);font-size:11px}
+.risk{display:inline-block;min-width:34px;text-align:center;border-radius:5px;padding:2px 6px;font-weight:700;font-size:11px}
+.md04 .tbl td{font-size:11.5px;padding:7px 8px}
+.md04 tr.aiw td{background:color-mix(in oklab,var(--ai) 7%,transparent)}
+.md04 tr.aiw td:first-child{box-shadow:inset 3px 0 0 var(--ai)}
+.fiori{border:1px solid var(--line2);border-radius:10px;overflow:hidden}
+.fiori .fh{display:flex;gap:10px;align-items:center;padding:9px 12px;background:color-mix(in oklab,var(--info) 10%,var(--panel2));border-bottom:1px solid var(--line2);font-size:12px;flex-wrap:wrap}
+.fiori .fh b{font-weight:650}
+.q{display:flex;flex-direction:column;gap:8px}
+.qi{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--panel2);font-size:12px;display:flex;flex-direction:column;gap:4px}
+.qi .meta{color:var(--tx3);font-size:10.5px}
+.qi .acts{display:flex;gap:6px}
+.kv2{display:grid;grid-template-columns:140px 1fr;gap:6px 10px;font-size:12px}
+.kv2 span:nth-child(odd){color:var(--tx3)}
+.step{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:12px;align-items:flex-start}
+.step:last-child{border-bottom:0}
+.step .n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--panel2);border:1px solid var(--line2);font-size:10.5px;font-weight:700;flex:none}
+.step .t{color:var(--tx3);font-size:10.5px;margin-left:auto;white-space:nowrap}
+.scn{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line);font-size:12px}
+.scn:last-child{border-bottom:0}
+.scn .d{color:var(--tx3);font-size:11px}
+.scn .btn{margin-left:auto}
+.arch{display:grid;grid-template-columns:1fr 1.25fr 1.25fr;gap:10px;align-items:stretch;font-size:11.5px}
+.arch .col{display:flex;flex-direction:column;gap:8px}
+.arch .bx{border:1px solid var(--line2);border-radius:9px;padding:8px 10px;background:var(--panel2)}
+.arch .bx b{display:block;font-size:12px;margin-bottom:1px}
+.arch .bx span{color:var(--tx3);font-size:10.5px}
+.arch .bx.ai{border-color:color-mix(in oklab,var(--ai) 50%,transparent)}
+.arch .bx.sap{border-color:color-mix(in oklab,var(--info) 50%,transparent)}
+.arch .hd{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3)}
+.radio{display:flex;flex-direction:column;gap:6px}
+.radio label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer;background:var(--panel2);font-size:12px}
+.radio label.on{border-color:color-mix(in oklab,var(--ai) 60%,transparent);box-shadow:0 0 0 1px color-mix(in oklab,var(--ai) 30%,transparent)}
+.radio input{accent-color:var(--ai);margin-top:2px}
+.radio small{display:block;color:var(--tx3);font-size:10.5px}
+
+/* copilot */
+.copilot{position:fixed;top:0;right:0;height:100vh;width:440px;max-width:100vw;background:var(--bg2);border-left:1px solid var(--line2);transform:translateX(102%);transition:transform .28s cubic-bezier(.2,.8,.2,1);z-index:50;display:flex;flex-direction:column;box-shadow:-24px 0 60px rgba(0,0,0,.35)}
+.copilot.open{transform:none}
+.cp-head{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.cp-head h3{margin:0;font-size:14px}
+.cp-ctx{font-size:11px;color:var(--tx3);padding:8px 16px;border-bottom:1px solid var(--line);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.cp-body{flex:1;overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.msg{font-size:12.5px;line-height:1.55}
+.msg.u{align-self:flex-end;background:var(--panel2);border:1px solid var(--line2);border-radius:12px 12px 3px 12px;max-width:88%;padding:8px 12px}
+.msg.a{border:1px solid color-mix(in oklab,var(--ai) 30%,var(--line));background:linear-gradient(180deg,color-mix(in oklab,var(--ai) 6%,var(--panel)),var(--panel));border-radius:12px 12px 12px 3px;padding:10px 12px}
+.msg.a .mh{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.msg.a ol,.msg.a ul{margin:4px 0;padding-left:18px}
+.msg.a table{border-collapse:collapse;font-size:11px;margin:6px 0;width:100%}
+.msg.a td,.msg.a th{border-bottom:1px solid var(--line);padding:4px 5px;text-align:left}
+.msg.a th{color:var(--tx3);font-weight:500}
+.msg details{margin-top:8px;font-size:11px;color:var(--tx3)}
+.msg details summary{cursor:pointer;color:var(--tx2)}
+.msg details li{margin:2px 0}
+.typing span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ai);margin-right:4px;animation:blink 1s infinite}
+.typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+.cp-sugg{padding:10px 16px 0;display:flex;gap:6px;flex-wrap:wrap}
+.cp-sugg .chip{font-size:11px;padding:4px 10px}
+.cp-input{display:flex;gap:8px;padding:12px 16px 16px}
+.cp-input input{flex:1;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--tx);font:inherit;font-size:12.5px;outline:none}
+.cp-input input:focus{border-color:var(--ai)}
+.fab{position:fixed;right:22px;bottom:22px;z-index:45;border-radius:99px;padding:11px 16px;box-shadow:0 10px 30px color-mix(in oklab,var(--ai) 35%,transparent)}
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;display:flex;flex-direction:column;gap:8px;z-index:60;align-items:center}
+.toast{background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;font-size:12px;box-shadow:var(--shadow);display:flex;gap:10px;align-items:center;animation:fade .25s ease;max-width:560px}
+
+@media (max-width:1280px){.recs,.trends{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:1100px){
+  .s3,.s4,.s5,.s6,.s7,.s8{grid-column:span 12}
+  .sim{grid-template-columns:1fr}
+  .opts{grid-template-columns:1fr}
+}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto;flex-direction:row;flex-wrap:wrap;overflow:visible}
+  .side-foot,.tenant,.fict{display:none}
+  .navg{flex-direction:row;flex-wrap:wrap}
+  .navg .lbl{display:none}
+  .content{padding:14px 16px 70px}
+  .topbar{padding:10px 16px}
+  .kpis,.kpis.k5,.recs,.trends,.outs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .arch{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F3D9B1" stroke-width="1.6"><ellipse cx="12" cy="12" rx="6.2" ry="9.5" transform="rotate(32 12 12)"/><path d="M8.2 17.6c2.4-1.6 3.2-4.1 3.3-5.8.1-1.8 1.1-4.3 4.3-5.9" stroke-linecap="round"/></svg></div>
+      <div><b>CABI</b><small>Commercial Analytics &amp;<br>Business Intelligence</small></div>
+    </div>
+    <div class="tenant"><div class="t1">Northstar Confections · LATAM</div><div class="t2">US-HQ · in LATAM since 1968 · 3 plants · 18 DCs</div></div>
+    <nav class="navg">
+      <div class="lbl">Commercial</div>
+      <div class="nav active" data-s="overview"><span class="ni" data-ico="grid"></span>Command Center<span class="cnt" id="cntOv">5</span></div>
+      <div class="nav" data-s="pricing"><span class="ni" data-ico="tag"></span>Pricing &amp; Promotions<span class="cnt">1</span></div>
+      <div class="nav" data-s="market"><span class="ni" data-ico="pulse"></span>Market Pulse</div>
+      <div class="lbl"><span data-ico="sap" style="display:inline-grid"></span>SAP AI Overlay</div>
+      <div class="nav" data-s="forecast"><span class="ni" data-ico="trend"></span>Demand Forecast</div>
+      <div class="nav" data-s="inventory"><span class="ni" data-ico="box"></span>Inventory<span class="cnt">4</span></div>
+      <div class="nav" data-s="routes"><span class="ni" data-ico="route"></span>Route Optimizer<span class="cnt" id="cntRt">1</span></div>
+      <div class="nav" data-s="sap"><span class="ni" data-ico="db"></span>SAP Data Hub</div>
+      <div class="lbl">Presenter</div>
+      <div class="nav" data-s="demo"><span class="ni" data-ico="sliders"></span>Demo Control &amp; AI</div>
+    </nav>
+    <div class="side-foot">
+      <div class="status"><span class="dot"></span><div><b>SAP S/4HANA · mock replica</b>Client 100 · synced 06:00</div></div>
+      <div class="status"><span class="dot ai" id="llmDot"></span><div><b id="llmName">Qwen3-4B · local (MLX)</b><span id="llmSub">Hugging Face · cache fallback on</span></div></div>
+      <div class="fict">Fictional company &amp; synthetic data for demonstration. Rename via config.</div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div class="ttl"><h1><span id="pgTitle">LATAM Commercial Command Center</span><span class="mockchip">MOCK v0.1</span></h1><p id="pgSub"></p></div>
+      <div class="tools">
+        <select class="sel"><option>All LATAM</option><option>Mexico</option><option>Brazil</option><option>Colombia</option><option>Peru</option><option>Chile</option><option>Argentina</option><option>Central America</option></select>
+        <select class="sel"><option>All channels</option><option>Traditional trade</option><option>Modern trade</option><option>Convenience</option><option>Hard discount / Atacarejo</option><option>E-commerce</option></select>
+        <select class="sel"><option>Wk 44 · 26 Oct – 1 Nov 2026</option><option>MTD October</option><option>QTD Q4</option></select>
+        <span class="live"><span class="dot blink"></span><span id="liveTx" class="num">1,284</span> POS tx/min</span>
+        <div class="seg" id="llmSeg" title="LLM mode">
+          <button data-m="auto" class="on">Auto</button><button data-m="local">Local LLM</button><button data-m="cache">Cache</button>
+        </div>
+        <button class="icon-btn" id="themeBtn" title="Toggle light / dark"><span data-ico="sun"></span></button>
+      </div>
+    </header>
+    <div class="ticker"><span class="tag">● LIVE</span><div class="track-wrap"><div class="track" id="track"></div></div></div>
+
+    <div class="content">
+      <!-- 1. COMMAND CENTER -->
+      <section class="screen active" id="s-overview" data-title="LATAM Commercial Command Center" data-sub="Tuesday 27 Oct 2026 · Week 44 · 7 markets · USD at constant FX">
+        <div class="kpis" id="ovKpis"></div>
+        <div class="grid">
+          <div class="panel ai-card s7">
+            <div class="ph"><span class="ai-ic" data-ico="spark"></span><h3>AI morning briefing</h3><span class="sub">5 signals that need a decision today</span>
+              <div class="right"><span class="mb" data-mb></span><button class="btn ghost sm">Regenerate</button><select class="sel" style="padding:3px 24px 3px 8px;font-size:11px"><option>English</option><option>Español</option><option>Português</option></select></div></div>
+            <div class="pb" id="ovBrief"></div>
+          </div>
+          <div class="panel s5">
+            <div class="ph"><h3>LATAM network &amp; market health</h3><div class="right legend"><span><svg width="10" height="10"><rect width="9" height="9" rx="2" style="fill:var(--gold)"/></svg>Plant</span><span><svg width="10" height="10"><circle cx="5" cy="5" r="4" style="fill:var(--tx2)"/></svg>DC</span><span><svg width="10" height="10"><circle cx="5" cy="5" r="4" style="fill:var(--neg)"/></svg>Alert</span><span><svg width="18" height="6"><path d="M0 3h18" style="stroke:var(--info);stroke-dasharray:4 3;stroke-width:1.5"/></svg>Sea / river</span></div></div>
+            <div class="pb"><div id="ovMap" class="mapbox cw"></div></div>
+          </div>
+          <div class="panel s7">
+            <div class="ph"><h3>Market performance · MTD</h3><span class="sub">Sell-in from SAP billing (VBRP) · sell-out &amp; share from POS / panel</span></div>
+            <div class="pb tw"><table class="tbl" id="ovTable"></table></div>
+          </div>
+          <div class="panel s5">
+            <div class="ph"><h3>Live POS pulse</h3><span class="pill p-pos"><span class="dot blink" style="width:6px;height:6px"></span>streaming</span><div class="right"><span class="sub">last 60 min · sell-out units / min</span></div></div>
+            <div class="pb"><div id="ovPulse" class="cw"></div><div id="ovChan" style="margin-top:8px"></div></div>
+          </div>
+          <div class="panel s12">
+            <div class="ph"><h3>AI recommendation queue</h3><span class="sub">12 pending · est. +$2.8M gross profit · every action needs human approval before SAP write-back</span><div class="right"><span class="pill">Sorted by value at stake</span><button class="btn sm">View all 12</button></div></div>
+            <div class="pb"><div class="recs" id="ovRecs"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. PRICING -->
+      <section class="screen" id="s-pricing" data-title="Pricing &amp; Promotions" data-sub="Revenue growth management · elasticity models + guardrails · Mexico · Modern trade">
+        <div class="alert-bar"><span class="dot neg blink"></span><b>Competitor move detected 06:40</b><span>Helvetia Classic 90g −12% (MXN 41.50 → 36.52) at Hiper Nacional · CDMX &amp; Edomex · 41 stores</span><span class="mut">source: retailer POS scan feed</span>
+          <div class="right"><span class="pill p-neg">Dulcera Milk 90g sell-out −9.1% WoW</span><span class="pill">Price index 96 → 109</span></div></div>
+        <div class="grid">
+          <div class="panel s8">
+            <div class="ph"><h3>Response options · Dulcera Milk 90g · Hiper Nacional</h3><span class="sub">8-week horizon incl. carry-over &amp; post-promo dip · vs pre-disruption baseline</span></div>
+            <div class="pb"><div class="opts" id="prOpts"></div></div>
+          </div>
+          <div class="panel ai-card s4">
+            <div class="ph"><span class="ai-ic" data-ico="spark"></span><h3>Why option C</h3><div class="right"><span class="mb" data-mb></span></div></div>
+            <div class="pb">
+              <div class="narr" style="margin-bottom:10px">A shallow <b>−5% TPR to MXN 37.90</b> brings the price index back inside the 95–105 band. That protects volume through Día de Muertos without the margin hit of a full match. A secondary display is not ROI-positive at this depth.</div>
+              <div class="mut" style="font-size:10.5px;margin-bottom:4px">DRIVER CONTRIBUTION (toward promo ← → toward hold)</div>
+              <div id="prDrivers"></div>
+              <div class="mut" style="font-size:10.5px;margin:10px 0 2px">GUARDRAILS</div>
+              <div id="prGuard"></div>
+            </div>
+          </div>
+          <div class="panel s8">
+            <div class="ph"><h3>What-if simulator</h3><span class="sub">Own-price elasticity −3.0 (promo, MT) · cross-elasticity vs Helvetia +1.1 · Bayesian hierarchical model v3</span></div>
+            <div class="pb sim">
+              <div class="ctl">
+                <div><label>TPR depth <b id="vD">5%</b></label><input type="range" id="iD" min="0" max="20" value="5"></div>
+                <div><label>Duration <b id="vW">3 wks</b></label><input type="range" id="iW" min="1" max="6" value="3"></div>
+                <div><label>Assumed competitor cut <b id="vC">12%</b></label><input type="range" id="iC" min="0" max="20" value="12"></div>
+                <label class="tog"><input type="checkbox" id="iDisp"> Secondary display (+6% lift · MXN 22k / wk)</label>
+                <div style="display:flex;gap:6px"><button class="btn sm" id="bestBtn"><span data-ico="spark"></span>Snap to AI optimum</button><button class="btn sm ghost">Save scenario</button></div>
+              </div>
+              <div>
+                <div class="outs">
+                  <div class="out"><div class="l">Shelf price</div><div class="v num" id="oP"></div></div>
+                  <div class="out"><div class="l">Price index vs Helvetia</div><div class="v num" id="oI"></div></div>
+                  <div class="out"><div class="l">Volume · 8 wks</div><div class="v num" id="oV"></div></div>
+                  <div class="out"><div class="l">Gross profit Δ · 8 wks</div><div class="v num" id="oG"></div></div>
+                </div>
+                <div class="legend" style="margin-bottom:4px"><span><i class="sw" style="background:var(--ai)"></i>Gross profit Δ vs depth (MXN)</span><span><svg width="10" height="10"><circle cx="5" cy="5" r="4" style="fill:var(--gold)"/></svg>Your scenario</span><span><svg width="10" height="10"><circle cx="5" cy="5" r="4" style="fill:var(--ai)"/></svg>AI optimum</span><span id="oGuard"></span></div>
+                <div id="prCurve" class="cw"></div>
+              </div>
+            </div>
+          </div>
+          <div class="panel s4">
+            <div class="ph"><h3>Price-pack architecture · Mexico</h3><span class="sub">Coin price points matter in traditional trade</span></div>
+            <div class="pb tw"><table class="tbl" id="prPPA"></table></div>
+          </div>
+          <div class="panel s8">
+            <div class="ph"><h3>Promotion calendar · Mexico · Q4</h3><span class="sub">Promo ROI from post-event analysis; AI flags below-hurdle events</span><div class="right legend"><span><i class="sw" style="background:var(--pos);height:8px"></i>ROI ≥ 1.3x</span><span><i class="sw" style="background:var(--warn);height:8px"></i>1.0–1.3x</span><span><i class="sw" style="background:var(--neg);height:8px"></i>&lt; 1.0x</span><span><i class="sw" style="background:var(--ai);height:8px"></i>AI draft</span></div></div>
+            <div class="pb"><div id="prGantt"></div></div>
+          </div>
+          <div class="panel s4">
+            <div class="ph"><h3>Cocoa cost pass-through</h3><span class="sub">Cocoa cost index (Jan-24 = 100)</span></div>
+            <div class="pb"><div id="prCocoa" class="cw"></div><div class="tw"><table class="tbl" id="prPass" style="margin-top:6px"></table></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. MARKET PULSE -->
+      <section class="screen" id="s-market" data-title="Market Pulse" data-sub="Consumer trends · POS sell-out · competitor activity · macro, regulation &amp; weather by market">
+        <div class="kpis k5" id="mkKpis"></div>
+        <div class="grid">
+          <div class="panel ai-card s7">
+            <div class="ph"><span class="ai-ic" data-ico="spark"></span><h3>Consumer trend signals</h3><span class="sub">Search, social &amp; basket data · YoY momentum · AI implications</span><div class="right"><span class="mb" data-mb></span></div></div>
+            <div class="pb"><div class="trends" id="mkTrends"></div></div>
+          </div>
+          <div class="panel s5">
+            <div class="ph"><h3>Value share by market</h3><span class="sub">Chocolate tablets &amp; bars · MAT</span></div>
+            <div class="pb"><div class="legend" id="mkShareLg" style="margin-bottom:8px"></div><div id="mkShare"></div></div>
+          </div>
+          <div class="panel s7">
+            <div class="ph"><h3>POS sell-out index by region</h3><span class="sub">% vs prior year · last 12 weeks · 61M scan lines</span></div>
+            <div class="pb tw"><div id="mkHeat"></div></div>
+          </div>
+          <div class="panel s5">
+            <div class="ph"><h3>Local market dynamics</h3><span class="sub">What the models are conditioning on</span></div>
+            <div class="pb"><div class="feed" id="mkLocal"></div></div>
+          </div>
+          <div class="panel s6">
+            <div class="ph"><h3>Channel mix shift · our LATAM sales</h3><span class="sub">Share of net revenue by channel, 2022–2026</span></div>
+            <div class="pb"><div class="legend" id="mkChLg" style="margin-bottom:6px"></div><div id="mkChan" class="cw"></div></div>
+          </div>
+          <div class="panel s6">
+            <div class="ph"><h3>Competitor activity</h3><span class="sub">Detected from POS, shelf audits, retailer portals &amp; field notes</span></div>
+            <div class="pb"><div class="feed" id="mkComp"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. FORECAST -->
+      <section class="screen" id="s-forecast" data-title="Demand Forecast · SAP AI Overlay" data-sub="Predictive demand sensing over SAP S/4HANA history, compared with the SAP IBP statistical baseline">
+        <div class="alert-bar sap"><span data-ico="db"></span><b>SAP sources</b><span class="mut">VBAK/VBAP sales orders · LIKP/LIPS deliveries · PBIM/PBED PIRs · MARC MRP data</span><span class="mut">+ POS sell-out · promo calendar · weather · events</span><div class="right"><span class="pill p-pos">Synced 06:00</span><span class="pill">1,248 SKU × DC series</span></div></div>
+        <div class="kpis k5" id="fcKpis"></div>
+        <div class="grid">
+          <div class="panel s8">
+            <div class="ph"><h3>Weekly demand · Dulcera Milk 90g · DC CDMX (MX1D)</h3>
+              <div class="right"><select class="sel" style="font-size:11px"><option>100045 · Dulcera Milk 90g</option><option>100058 · Fiesta Bites 150g</option><option>100012 · Rayo 12g</option></select><select class="sel" style="font-size:11px"><option>MX1D · DC CDMX</option><option>MX2D · DC Guadalajara</option><option>BR3D · DC Manaus</option></select></div></div>
+            <div class="pb"><div class="legend" style="margin-bottom:6px"><span><i class="sw" style="background:var(--tx)"></i>Actual shipments (SAP LIPS)</span><span><i class="sw" style="background:var(--tx3)"></i>SAP IBP statistical baseline</span><span><i class="sw" style="background:var(--teal)"></i>AI forecast (P50)</span><span><i class="lg-band" style="background:var(--teal)"></i>P10–P90</span></div><div id="fcChart" class="cw"></div></div>
+          </div>
+          <div class="panel ai-card s4">
+            <div class="ph"><span class="ai-ic" data-ico="spark"></span><h3>Forecast bridge · next 8 weeks</h3><span class="sub">SAP baseline → AI forecast (cases)</span></div>
+            <div class="pb"><div id="fcBridge"></div></div>
+          </div>
+          <div class="panel s6">
+            <div class="ph"><h3>Accuracy by market · 13-week backtest</h3><span class="sub">1 − WAPE at SKU × DC × week</span></div>
+            <div class="pb tw"><table class="tbl" id="fcAcc"></table></div>
+          </div>
+          <div class="panel ai-card s6">
+            <div class="ph"><span class="ai-ic" data-ico="spark"></span><h3>Why the forecast changed</h3><div class="right"><span class="mb" data-mb></span></div></div>
+            <div class="pb">
+              <div class="narr">The SAP IBP baseline projects the last 13 weeks forward. It does not see the <b>Buen Fin TPR (−15%, 13–16 Nov)</b> already approved in the trade promotion plan. It also misses the <b>POS demand-sensing signal</b>: Día de Muertos sell-out in the CDMX metro is running <b>+14% vs last year</b>. Together these lift the next 8 weeks by <b>+14.4% (≈ +5,950 cases)</b>. Offsets: the Helvetia price cut (−1,100) and heat in the North (−600).</div>
+              <div class="src-chips"><span class="pill">SAP LIPS · 156 wks</span><span class="pill">TPM promo plan</span><span class="pill">POS · 2,140 stores</span><span class="pill">Weather · 38 stations</span><span class="pill p-pos">Grounded 9 / 9 figures</span></div>
+              <div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:10px">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><b style="font-size:12px">Write back to SAP</b><span class="pill p-info">MD61 · BAPI_REQUIREMENTS_CHANGE</span><span class="pill p-warn">Simulated</span></div>
+                <div class="tw"><table class="tbl" id="fcWB"></table></div>
+                <div style="display:flex;gap:6px;margin-top:8px"><button class="btn pri sm" data-toast="PIR update queued for demand-planner approval (simulated SAP write-back)">Send PIR update for approval</button><button class="btn sm ghost">Export CSV</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. INVENTORY -->
+      <section class="screen" id="s-inventory" data-title="Localized Inventory · SAP AI Overlay" data-sub="Stock by DC from SAP (MATDOC / I_MaterialStock) · probabilistic stock-out risk · AI rebalancing">
+        <div class="kpis k5" id="invKpis"></div>
+        <div class="grid">
+          <div class="panel s8">
+            <div class="ph"><h3>Inventory health · days of supply by DC × SKU</h3><div class="right legend"><span><i class="sw" style="background:var(--neg);height:8px"></i>&lt; 7 d</span><span><i class="sw" style="background:var(--warn);height:8px"></i>7–14 d</span><span><i class="sw" style="background:var(--pos);height:8px"></i>15–45 d</span><span><i class="sw" style="background:var(--info);height:8px"></i>46–60 d</span><span><i class="sw" style="background:var(--ex);height:8px"></i>&gt; 60 d excess</span></div></div>
+            <div class="pb tw"><div id="invMx"></div></div>
+          </div>
+          <div class="panel ai-card s4">
+            <div class="ph"><span class="ai-ic" data-ico="spark"></span><h3>AI rebalancing actions</h3><span class="sub">Stock transport orders (UB) &amp; markdowns</span></div>
+            <div class="pb" style="display:flex;flex-direction:column;gap:8px" id="invAct"></div>
+          </div>
+          <div class="panel s6">
+            <div class="ph"><h3>Projected stock · Fiesta Bites 150g · DC CDMX</h3><span class="sub">P50 demand · open orders · planned receipts</span></div>
+            <div class="pb"><div class="legend" style="margin-bottom:6px"><span><i class="sw" style="background:var(--neg)"></i>As-is (SAP MRP)</span><span><i class="sw" style="background:var(--teal)"></i>With AI plan (STO + pull-in)</span><span><i class="sw" style="background:var(--warn)"></i>Safety stock</span></div><div id="invProj" class="cw"></div></div>
+          </div>
+          <div class="panel s6">
+            <div class="ph"><h3>Shelf-life exposure</h3><span class="sub">Chocolate shelf life 9–12 months · value by remaining life (USD)</span></div>
+            <div class="pb"><div id="invAge"></div>
+              <div class="narr" style="margin-top:10px;font-size:12px"><span class="aic">AI:</span> <b>3,100 cases</b> of Fiesta Bites Calaverita 25g (Día de Muertos edition) in TIJ &amp; MTY expire in 52 days. Recommend moving them into <b>hard-discount channel bundles before Buen Fin</b>. Recovery is 71% of value, against 18% via write-off.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. ROUTES -->
+      <section class="screen" id="s-routes" data-title="Distribution Route Optimizer · SAP AI Overlay" data-sub="Risk-aware vehicle routing over SAP shipments (VTTK/VTTP) · weather, landslides, security, heat &amp; altitude">
+        <div class="chips" id="rtScn"><span class="chip on">Peru · Huaico on Carretera Central</span><span class="chip">Mexico · Heat + cargo-security corridor</span><span class="chip">Brazil · Rio Negro low water (Manaus)</span><span class="chip">Chile–Argentina · Andes pass closure</span></div>
+        <div class="alert-bar warn"><span class="dot warn blink"></span><b>Disruption 05:12</b><span>Landslide (huaico) closes Carretera Central at km 98, San Mateo. Estimated reopening in 36–48 h.</span><span class="mut">source: road-authority alert feed (mock)</span><div class="right"><span class="pill p-neg">6 loads · 41 customers affected</span><span class="pill">Todos los Santos demand peak</span></div></div>
+        <div class="grid">
+          <div class="panel s7">
+            <div class="ph"><h3>Network view · Central &amp; Southern Peru</h3><div class="right legend"><span><i class="sw" style="background:var(--neg)"></i>Blocked plan</span><span><i class="sw" style="background:var(--teal)"></i>AI re-route</span><span><i class="sw" style="background:var(--gold)"></i>Re-sourced from Arequipa</span><span><i class="sw" style="background:var(--tx3)"></i>Unchanged</span></div></div>
+            <div class="pb"><div id="rtMap" class="mapbox cw"></div></div>
+          </div>
+          <div class="panel ai-card s5">
+            <div class="ph"><span class="ai-ic" data-ico="spark"></span><h3>Re-optimized plan</h3><span class="pill p-ai">OR-Tools VRP-TW · 186 stops · 18 vehicles · 2.8 s</span></div>
+            <div class="pb">
+              <div class="cmp" id="rtCmp"></div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px" id="rtRoutes"></div>
+              <div style="display:flex;gap:6px;margin-top:10px"><button class="btn pri sm" data-toast="Re-route approved · shipments VTTK 7781023–7781028 updated (simulated)">Approve &amp; update SAP shipments</button><button class="btn sm ghost">Notify customers (pre-venta app)</button></div>
+            </div>
+          </div>
+          <div class="panel s4">
+            <div class="ph"><h3>Risk layers &amp; constraints</h3></div>
+            <div class="pb" id="rtLayers"></div>
+          </div>
+          <div class="panel s8">
+            <div class="ph"><h3>Lane risk scoring · network top lanes</h3><span class="sub">Risk-weighted cost = freight + λ·risk (λ = 0.35) · scores 0–100</span></div>
+            <div class="pb tw"><table class="tbl" id="rtLanes"></table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. SAP DATA HUB -->
+      <section class="screen" id="s-sap" data-title="SAP Data Hub &amp; AI Overlay" data-sub="Read-only extraction from S/4HANA · AI annotations on standard transactions · governed write-back queue">
+        <div class="grid">
+          <div class="panel s4">
+            <div class="ph"><h3>Connection</h3><span class="pill p-pos">Healthy</span><span class="pill p-warn">Mock replica</span></div>
+            <div class="pb"><div class="kv2" id="sapConn"></div></div>
+          </div>
+          <div class="panel s8">
+            <div class="ph"><h3>Data lineage · SAP objects → CABI models</h3><span class="sub">The mock adapter serves CSV/Parquet extracts shaped like the OData / CDS payloads</span></div>
+            <div class="pb tw"><table class="tbl" id="sapLin"></table></div>
+          </div>
+          <div class="panel s8 md04">
+            <div class="ph"><span class="ai-ic" data-ico="spark"></span><h3>AI overlay on MD04 · Stock/Requirements List</h3><div class="right"><label class="tog"><input type="checkbox" checked> Show AI annotations</label></div></div>
+            <div class="pb">
+              <div class="fiori">
+                <div class="fh"><b>Stock/Requirements List</b><span class="mut">Material</span>100058 Fiesta Bites 150g<span class="mut">Plant</span>MX1D DC CDMX<span class="mut">MRP type</span>PD<span class="mut">Safety stock</span>1,600 CS</div>
+                <div class="tw"><table class="tbl" id="sapMd04"></table></div>
+              </div>
+            </div>
+          </div>
+          <div class="panel s4">
+            <div class="ph"><h3>Write-back queue</h3><span class="sub">Human-in-the-loop · audit-logged</span></div>
+            <div class="pb"><div class="q" id="sapQ"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. DEMO CONTROL -->
+      <section class="screen" id="s-demo" data-title="Demo Control &amp; AI Settings" data-sub="Presenter cockpit · LLM gateway · scenario injection · real-time stream">
+        <div class="grid">
+          <div class="panel ai-card s6">
+            <div class="ph"><span class="ai-ic" data-ico="spark"></span><h3>LLM gateway</h3><span class="sub">Hugging Face model on-device, with response-cache fallback</span></div>
+            <div class="pb" style="display:flex;flex-direction:column;gap:12px">
+              <div class="radio" id="dmMode">
+                <label data-m="auto" class="on"><input type="radio" name="m" checked><div><b>Auto</b> (recommended)<small>Local HF model first. Falls back to the response cache on timeout (&gt; 8 s), error or missing model.</small></div></label>
+                <label data-m="local"><input type="radio" name="m"><div><b>Local HF model only</b><small>Every narrative generated live on this laptop. Shows real latency.</small></div></label>
+                <label data-m="cache"><input type="radio" name="m"><div><b>Cache only</b> (offline-safe)<small>Pre-generated, grounded responses. Instant, deterministic, needs no model.</small></div></label>
+              </div>
+              <div class="kv2">
+                <span>Model</span><span><select class="sel" style="font-size:11.5px"><option>Qwen3-4B-Instruct-2507 · 4-bit · 2.3 GB (default)</option><option>Qwen3-8B · 4-bit · 4.6 GB (higher quality)</option><option>Llama-3.2-3B-Instruct · 4-bit · 1.8 GB</option><option>Phi-4-mini-instruct · 4-bit · 2.2 GB</option></select></span>
+                <span>Runtime</span><span>MLX (Apple Silicon) <span class="pill p-pos">detected</span> · llama.cpp GGUF <span class="pill">fallback</span></span>
+                <span>Status</span><span><span class="up">● Loaded</span> in 3.1 s · ~40 tok/s · 18 / 24 GB RAM free</span>
+                <span>Response cache</span><span>148 entries · covers 100% of demo script · hit rate today 37%</span>
+                <span>Grounding guard</span><span>Every number in a narrative must exist in the computed facts. Ungrounded output is regenerated or replaced from cache.</span>
+                <span>Narrative language</span><span><div class="seg"><button class="on">Auto</button><button>EN</button><button>ES</button><button>PT</button></div></span>
+              </div>
+            </div>
+          </div>
+          <div class="panel s6">
+            <div class="ph"><h3>Scenario injector</h3><span class="sub">Trigger live events during the presentation</span><div class="right"><button class="btn sm ghost" data-toast="Demo state reset to 27 Oct 2026 07:40">Reset demo</button></div></div>
+            <div class="pb" id="dmScn"></div>
+          </div>
+          <div class="panel s4">
+            <div class="ph"><h3>Real-time stream</h3></div>
+            <div class="pb ctl">
+              <div><label>POS events / sec <b id="vRate">20</b></label><input type="range" min="1" max="100" value="20" id="iRate"></div>
+              <div><label>Demo clock <b>27 Oct 2026 · 07:42</b></label><div class="seg"><button>Frozen</button><button class="on">Real-time</button><button>10× speed</button></div></div>
+              <label class="tog"><input type="checkbox" checked> Show presenter hints on screens</label>
+              <label class="tog"><input type="checkbox" checked> Show agent trace in Copilot answers</label>
+            </div>
+          </div>
+          <div class="panel s8">
+            <div class="ph"><h3>Presenter script · ~18 min</h3><span class="sub">Suggested storyline for a commercial + supply-chain audience</span></div>
+            <div class="pb" id="dmScript"></div>
+          </div>
+          <div class="panel s12">
+            <div class="ph"><h3>How it runs · 100% on this laptop</h3><span class="sub">No Docker, no cloud. One command: <code>./run.sh</code> → http://localhost:8000</span></div>
+            <div class="pb">
+              <div class="arch">
+                <div class="col"><div class="hd">Experience</div>
+                  <div class="bx"><b>Browser UI</b><span>Single-page app · ECharts · offline map · SSE live updates</span></div>
+                  <div class="bx ai"><b>Copilot</b><span>EN / ES / PT · agent trace · source chips</span></div>
+                  <div class="bx"><b>Presenter cockpit</b><span>Scenario injection · LLM mode switch</span></div></div>
+                <div class="col"><div class="hd">Intelligence · FastAPI (Python)</div>
+                  <div class="bx"><b>Analytics engine</b><span>DuckDB SQL over Parquet · KPIs, share, price gaps</span></div>
+                  <div class="bx"><b>Predictive models</b><span>Gradient-boosted demand sensing · quantile bands · elasticity · promo uplift</span></div>
+                  <div class="bx"><b>Optimizers</b><span>Price/promo grid with guardrails · inventory rebalancing · OR-Tools VRP-TW</span></div>
+                  <div class="bx ai"><b>LLM gateway</b><span>HF model via MLX / llama.cpp → response cache → template narrator</span></div></div>
+                <div class="col"><div class="hd">Data</div>
+                  <div class="bx sap"><b>Mock SAP S/4HANA adapter</b><span>OData-shaped extracts: VBAK/VBAP, LIKP/LIPS, MATDOC, MARC, PBED, PLAF, VTTK · simulated write-back</span></div>
+                  <div class="bx"><b>External signals (mock)</b><span>POS sell-out · consumer trends · weather · road alerts · FX / CPI · competitor prices</span></div>
+                  <div class="bx"><b>Synthetic data generator</b><span>Seeded, 3 years × 7 markets × 40 SKUs × 18 DCs · reproducible</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<button class="btn pri fab" id="fab"><span data-ico="spark"></span>Ask CABI Copilot</button>
+<aside class="copilot" id="copilot">
+  <div class="cp-head"><span class="ai-ic" data-ico="spark"></span><h3>CABI Copilot</h3><span class="mb" data-mb></span><button class="icon-btn" id="cpClose" style="margin-left:auto">✕</button></div>
+  <div class="cp-ctx">Context: <span class="pill" id="cpCtx">Command Center</span><span class="pill">All LATAM</span><span class="pill">Wk 44</span><span class="pill p-pos">Read-only · approvals required for actions</span></div>
+  <div class="cp-body" id="cpBody"></div>
+  <div class="cp-sugg" id="cpSugg"></div>
+  <div class="cp-input"><input id="cpIn" placeholder="Ask in English, Español or Português…"><button class="btn pri" id="cpSend"><span data-ico="send"></span></button></div>
+</aside>
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* ---------- utilities ---------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+function R(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return()=>((s=s*16807%2147483647)-1)/2147483646;}
+const fmtN=(v,d=0)=>Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtK=v=>{const a=Math.abs(v);if(a>=1e6)return(v/1e6).toFixed(1).replace(/\.0$/,'')+'M';if(a>=1e3)return(v/1e3).toFixed(1).replace(/\.0$/,'')+'k';return String(Math.round(v));};
+const sgn=(v,d=1,suf='%')=>(v>0?'+':v<0?'−':'±')+Math.abs(v).toFixed(d)+suf;
+const IC={
+  grid:'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
+  tag:'M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8zM7.5 7.5h.01',
+  pulse:'M3 12h4l3-8 4 16 3-8h4',
+  trend:'M3 17l6-6 4 4 8-8M15 7h6v6',
+  box:'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  route:'M6 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 17V11a4 4 0 0 1 4-4h6M8 19h6a4 4 0 0 0 4-4V9',
+  db:'M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3zM4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6',
+  sap:'M4 6h16v12H4zM8 10h3M8 14h8',
+  sliders:'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6',
+  spark:'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z',
+  send:'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
+  sun:'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4'
+};
+const ico=(n,s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${IC[n]}"/></svg>`;
+$$('[data-ico]').forEach(e=>e.innerHTML=ico(e.dataset.ico,e.closest('.lbl')?12:16));
+function series(seed,n,start,drift,vol){const r=R(seed);let v=start;return Array.from({length:n},()=>(v=v*(1+drift+(r()-.5)*vol)));}
+function niceTicks(a,b,n){const st0=(b-a)/n,mag=Math.pow(10,Math.floor(Math.log10(st0))),f=st0/mag,st=(f<1.5?1:f<3?2:f<7?5:10)*mag,t=[];for(let v=Math.ceil(a/st)*st;v<=b+1e-9;v+=st)t.push(+v.toFixed(8));return t;}
+function spark(data,color,w=96,h=30){const mn=Math.min(...data),mx=Math.max(...data);const X=i=>i/(data.length-1)*w,Y=v=>h-2-(v-mn)/((mx-mn)||1)*(h-5);const d=data.map((v,i)=>(i?'L':'M')+X(i).toFixed(1)+','+Y(v).toFixed(1)).join('');return `<svg width="${w}" height="${h}"><path d="${d}L${w},${h}L0,${h}Z" style="fill:${color};opacity:.13"/><path d="${d}" style="fill:none;stroke:${color};stroke-width:1.6"/></svg>`;}
+function toast(msg,kind='ai'){const t=document.createElement('div');t.className='toast';t.innerHTML=`<span class="dot ${kind}"></span>${msg}`;$('#toasts').appendChild(t);setTimeout(()=>t.remove(),4200);}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-toast]');if(b)toast(b.dataset.toast,'');});
+
+/* ---------- line chart ---------- */
+function lineChart(el,o){
+  const w=el.clientWidth||600,h=o.h||240,p={l:o.padL||44,r:14,t:o.padT||20,b:24},n=o.x.length;
+  const vals=[];o.series.forEach(s=>s.data.forEach(v=>v!=null&&vals.push(v)));if(o.band){o.band.lo.forEach(v=>v!=null&&vals.push(v));o.band.hi.forEach(v=>v!=null&&vals.push(v));}
+  if(o.extra)vals.push(...o.extra);
+  let y0=o.yMin!=null?o.yMin:Math.min(...vals),y1=Math.max(...vals);const pad=(y1-y0)*.08;if(o.yMin==null)y0-=pad;y1+=pad;
+  const X=i=>p.l+(i/(n-1))*(w-p.l-p.r),Y=v=>p.t+(1-(v-y0)/(y1-y0))*(h-p.t-p.b);
+  let g='';
+  niceTicks(y0,y1,4).forEach(t=>{g+=`<line x1="${p.l}" x2="${w-p.r}" y1="${Y(t)}" y2="${Y(t)}" class="gl"/><text x="${p.l-6}" y="${Y(t)+3}" class="ax" text-anchor="end">${(o.fmt||fmtK)(t)}</text>`;});
+  const ev=o.xEvery||Math.ceil(n/8);o.x.forEach((lb,i)=>{if(i%ev===0)g+=`<text x="${X(i)}" y="${h-6}" class="ax" text-anchor="middle">${lb}</text>`;});
+  if(o.zero)g+=`<line x1="${p.l}" x2="${w-p.r}" y1="${Y(0)}" y2="${Y(0)}" style="stroke:var(--tx3)"/>`;
+  if(o.split!=null)g+=`<rect x="${X(o.split)}" y="${p.t}" width="${w-p.r-X(o.split)}" height="${h-p.t-p.b}" class="fcr"/><line x1="${X(o.split)}" x2="${X(o.split)}" y1="${p.t-8}" y2="${h-p.b}" class="today"/><text x="${X(o.split)+5}" y="${p.t-9}" class="tt">Today · forecast →</text>`;
+  (o.ann||[]).forEach((a,k)=>{g+=`<line x1="${X(a.i)}" x2="${X(a.i)}" y1="${p.t+(k%2?12:2)}" y2="${h-p.b}" class="ann"/><text x="${X(a.i)}" y="${p.t+(k%2?20:10)}" class="annt" text-anchor="middle">${a.label}</text>`;});
+  if(o.hline)o.hline.forEach(hl=>{g+=`<line x1="${p.l}" x2="${w-p.r}" y1="${Y(hl.v)}" y2="${Y(hl.v)}" style="stroke:${hl.color};stroke-dasharray:5 4;stroke-width:1.3"/><text x="${w-p.r}" y="${Y(hl.v)-5}" class="ax" text-anchor="end" style="fill:${hl.color}">${hl.label}</text>`;});
+  if(o.band){const idx=[...Array(n).keys()].filter(i=>o.band.lo[i]!=null);if(idx.length){const up=idx.map((i,k)=>(k?'L':'M')+X(i).toFixed(1)+','+Y(o.band.hi[i]).toFixed(1)).join('');const dn=idx.slice().reverse().map(i=>'L'+X(i).toFixed(1)+','+Y(o.band.lo[i]).toFixed(1)).join('');g+=`<path d="${up}${dn}Z" style="fill:${o.band.color};opacity:.16"/>`;}}
+  o.series.forEach(s=>{let d='',pen=false,first=null,last=null;s.data.forEach((v,i)=>{if(v==null){pen=false;return;}if(first==null)first=i;last=i;d+=(pen?'L':'M')+X(i).toFixed(1)+','+Y(v).toFixed(1);pen=true;});
+    if(s.area&&first!=null)g+=`<path d="${d}L${X(last)},${Y(y0)}L${X(first)},${Y(y0)}Z" style="fill:${s.color};opacity:.12"/>`;
+    g+=`<path d="${d}" style="fill:none;stroke:${s.color};stroke-width:${s.w||2};${s.dash?'stroke-dasharray:'+s.dash:''}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    (s.markers||[]).forEach(m=>{g+=`<circle cx="${X(m.i)}" cy="${Y(s.data[m.i])}" r="${m.r||5}" style="fill:${m.fill||s.color};stroke:var(--panel);stroke-width:2"/>${m.label?`<text x="${X(m.i)}" y="${Y(s.data[m.i])-11}" class="mkt" text-anchor="middle">${m.label}</text>`:''}`;});});
+  el.innerHTML=`<svg width="${w}" height="${h}" class="chart">${g}<line class="xh" y1="${p.t}" y2="${h-p.b}" style="display:none"/></svg><div class="tip" style="display:none"></div>`;
+  const svg=el.querySelector('svg'),xh=svg.querySelector('.xh'),tip=el.querySelector('.tip');
+  svg.addEventListener('mousemove',ev=>{const bx=svg.getBoundingClientRect(),mx=ev.clientX-bx.left;let i=Math.round((mx-p.l)/(w-p.l-p.r)*(n-1));i=Math.max(0,Math.min(n-1,i));
+    const rows=o.series.filter(s=>s.data[i]!=null&&!s.noTip).map(s=>`<div class="tr"><span><i class="sw" style="background:${s.color}"></i> ${s.name}</span><b>${(o.tfmt||(v=>fmtN(v)))(s.data[i])}</b></div>`).join('');
+    if(!rows){tip.style.display='none';xh.style.display='none';return;}
+    xh.setAttribute('x1',X(i));xh.setAttribute('x2',X(i));xh.style.display='';
+    tip.innerHTML=`<div class="mut" style="margin-bottom:3px">${o.x[i]}</div>${rows}`;tip.style.display='';
+    const tx=X(i)+12+tip.offsetWidth>w?X(i)-tip.offsetWidth-12:X(i)+12;tip.style.left=tx+'px';tip.style.top='6px';});
+  svg.addEventListener('mouseleave',()=>{tip.style.display='none';xh.style.display='none';});
+}
+
+/* ---------- map ---------- */
+const LAND=[[32.53,-117.12],[31.86,-116.6],[30.5,-115.95],[27.85,-115.08],[24.6,-112.1],[22.88,-109.91],[24.15,-110.3],[26,-111.35],[27.34,-112.27],[28.95,-113.55],[31.02,-114.84],[31.8,-114.8],[31.3,-113.55],[28.8,-111.95],[27.92,-110.9],[26.8,-109.6],[25.6,-109.05],[24.6,-107.7],[23.2,-106.42],[21.54,-105.29],[20.6,-105.24],[20.4,-105.7],[19.05,-104.32],[17.95,-102.2],[17.64,-101.55],[16.85,-99.88],[16.3,-98.2],[15.86,-97.07],[15.75,-96.13],[16.17,-95.2],[16.2,-94.4],[16,-93.9],[14.7,-92.4],[13.92,-90.82],[13.57,-89.83],[13.48,-89.32],[13.2,-87.8],[12.48,-87.17],[11.25,-85.87],[9.56,-85.1],[9.97,-84.83],[9.43,-84.16],[8.4,-83.3],[8.03,-82.88],[7.47,-80],[8.95,-79.53],[8.4,-78.4],[7.5,-78.17],[6.22,-77.4],[5.5,-77.55],[3.88,-77.07],[1.8,-78.78],[0.97,-79.65],[-0.37,-80.5],[-0.95,-80.73],[-2.2,-80.98],[-2.6,-80],[-3.4,-80.3],[-4.1,-81.05],[-4.68,-81.33],[-5.08,-81.11],[-5.8,-81],[-6.8,-79.95],[-7.4,-79.57],[-8.1,-79.05],[-9.08,-78.6],[-10.07,-78.16],[-11.1,-77.62],[-12.05,-77.15],[-12.5,-76.75],[-13,-76.48],[-13.71,-76.22],[-13.9,-76.3],[-15.35,-75.17],[-15.85,-74.25],[-16.62,-72.71],[-17.02,-72.02],[-17.64,-71.34],[-18.48,-70.32],[-20.21,-70.15],[-22.09,-70.2],[-23.1,-70.45],[-23.65,-70.4],[-25.4,-70.48],[-26.35,-70.62],[-27.07,-70.83],[-28.47,-71.22],[-29.9,-71.33],[-31.9,-71.5],[-33.03,-71.63],[-33.6,-71.62],[-35.33,-72.42],[-36.8,-73.1],[-37.6,-73.65],[-39.8,-73.4],[-41.5,-73.8],[-42.5,-74.2],[-43.5,-74.3],[-45,-74.8],[-46.6,-75.6],[-48,-75.5],[-50,-75.3],[-51.6,-74.9],[-52.8,-74.3],[-53.9,-72.5],[-54.6,-71],[-55.2,-69.5],[-55,-67.5],[-54.65,-65.2],[-53.79,-67.7],[-52.65,-68.6],[-51.62,-69.2],[-50,-68.5],[-49.3,-67.7],[-47.75,-65.9],[-46.44,-67.52],[-45.86,-67.48],[-44.8,-65.7],[-44,-65.2],[-43.3,-65.05],[-42.5,-63.6],[-42.05,-63.75],[-40.73,-64.95],[-40.55,-62.25],[-38.95,-62],[-38.98,-61.3],[-38.57,-58.7],[-38,-57.53],[-36.3,-56.75],[-35.7,-57.3],[-34.6,-58.37],[-34.47,-57.85],[-34.9,-56.2],[-34.97,-54.95],[-34.66,-54.16],[-33.7,-53.4],[-32.05,-52.08],[-30,-50.13],[-29.33,-49.73],[-28.48,-48.78],[-27.6,-48.45],[-26.9,-48.65],[-25.52,-48.5],[-24.7,-47.5],[-23.97,-46.3],[-23.43,-45.07],[-23,-44.3],[-22.97,-43.17],[-22.88,-42.02],[-22.37,-41.78],[-22,-40.98],[-20.32,-40.29],[-19.4,-39.7],[-17.7,-39.25],[-16.45,-39.06],[-14.79,-39.03],[-13,-38.5],[-10.9,-37.05],[-9.67,-35.72],[-8.05,-34.88],[-7.12,-34.83],[-5.79,-35.2],[-5.48,-35.26],[-4.95,-37.13],[-3.72,-38.52],[-2.9,-40.84],[-2.9,-41.75],[-2.53,-44.3],[-1.65,-45.4],[-0.6,-47.35],[-0.2,-48.5],[0,-50],[0.03,-51.05],[1.7,-49.9],[4.2,-51.6],[4.93,-52.33],[5.87,-55.17],[5.95,-56.98],[6.8,-58.15],[8.6,-60.5],[10.1,-61.9],[10.72,-62.5],[10.46,-64.17],[10.13,-64.7],[10.48,-66.1],[10.6,-66.93],[10.47,-68],[10.8,-68.32],[11.4,-69.67],[12.18,-70],[11,-71.6],[12.45,-71.67],[11.54,-72.9],[11.24,-74.21],[11.02,-74.85],[10.4,-75.53],[9.5,-75.7],[8.1,-76.73],[8.42,-76.78],[8.68,-77.36],[9.4,-78.5],[9.36,-79.9],[9.34,-82.24],[9.99,-83.03],[10.93,-83.7],[12,-83.76],[14.03,-83.38],[15,-83.15],[15.92,-85.95],[15.78,-86.8],[15.85,-87.95],[15.73,-88.6],[16.1,-88.8],[16.97,-88.22],[17.5,-88.2],[18.27,-87.83],[20.21,-87.46],[20.63,-87.07],[21.16,-86.82],[21.6,-87.07],[21.52,-87.68],[21.28,-89.66],[20.86,-90.4],[19.85,-90.53],[19.35,-90.72],[18.64,-91.83],[18.55,-92.65],[18.15,-94.42],[18.77,-95.76],[19.2,-96.13],[20.2,-96.77],[20.96,-97.4],[22.25,-97.85],[23.78,-97.75],[25.87,-97.15],[26.08,-98.3],[27.5,-99.5],[28.7,-100.52],[29.32,-100.93],[29.18,-102.95],[29.56,-104.42],[31.74,-106.48],[31.78,-107.63],[31.33,-108.2],[31.33,-110.94],[31.86,-112.85],[32.47,-114.77],[32.66,-115.47]];
+function mapSVG(el,cfg){
+  const w=el.clientWidth||460,[lo0,lo1,la0,la1]=cfg.view,h=Math.round(w*(la1-la0)/(lo1-lo0));
+  const P=(lat,lon)=>[(lon-lo0)/(lo1-lo0)*w,(la1-lat)/(la1-la0)*h];
+  const land=LAND.map((q,i)=>{const[x,y]=P(q[0],q[1]);return(i?'L':'M')+x.toFixed(1)+','+y.toFixed(1);}).join('')+'Z';
+  const id='p'+Math.random().toString(36).slice(2,8);
+  let g=`<defs><pattern id="${id}" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1" class="mdot"/></pattern></defs><path d="${land}" class="land"/><path d="${land}" style="fill:url(#${id})"/>`;
+  (cfg.under||[]).forEach(f=>g+=f(P));
+  (cfg.labels||[]).forEach(l=>{const[x,y]=P(l.lat,l.lon);g+=`<text x="${x}" y="${y}" class="cl" text-anchor="middle" style="${l.st||''}">${l.t}</text>`;});
+  (cfg.bubbles||[]).forEach(b=>{const[x,y]=P(b.lat,b.lon);g+=`<circle cx="${x}" cy="${y}" r="${b.r}" class="bub" style="fill:${b.c};fill-opacity:.16;stroke:${b.c};stroke-opacity:.6"><title>${b.tip}</title></circle><text x="${x}" y="${y+b.r+11}" class="nl" text-anchor="middle">${b.t}</text>`;});
+  (cfg.lanes||[]).forEach(l=>{const[a,b]=[P(...l.a),P(...l.b)];const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],k=l.k||.18;g+=`<path d="M${a[0]},${a[1]}Q${mx-dy*k},${my+dx*k} ${b[0]},${b[1]}" class="lane ${l.sea?'sea':''} ${l.flow?'flow':''}"/>`;});
+  (cfg.paths||[]).forEach(r=>{const d=r.pts.map((q,i)=>{const[x,y]=P(q[0],q[1]);return(i?'L':'M')+x.toFixed(1)+','+y.toFixed(1);}).join('');g+=`<path d="${d}" style="fill:none;stroke:${r.c};stroke-width:${r.w||2.4};${r.dash?'stroke-dasharray:'+r.dash:''};stroke-linejoin:round;stroke-linecap:round" class="${r.flow?'flow':''}"/>`;});
+  (cfg.nodes||[]).forEach(nd=>{const[x,y]=P(nd.lat,nd.lon);
+    if(nd.alert)g+=`<circle cx="${x}" cy="${y}" r="6" class="pulse" style="fill:var(--neg)"/>`;
+    if(nd.t==='plant')g+=`<rect x="${x-5}" y="${y-5}" width="10" height="10" rx="2" style="fill:var(--gold);stroke:var(--panel);stroke-width:1.5"><title>${nd.n}</title></rect>`;
+    else if(nd.t==='x')g+=`<g style="stroke:var(--neg);stroke-width:3;stroke-linecap:round"><path d="M${x-6},${y-6}L${x+6},${y+6}M${x+6},${y-6}L${x-6},${y+6}"/></g>`;
+    else g+=`<circle cx="${x}" cy="${y}" r="${nd.r||3.6}" style="fill:${nd.c||(nd.alert?'var(--neg)':'var(--tx2)')};stroke:var(--panel);stroke-width:1.5"><title>${nd.n||nd.id}</title></circle>`;
+    if(nd.lbl)g+=`<text x="${x+(nd.dx||8)}" y="${y+(nd.dy||3)}" class="nl" text-anchor="${nd.anc||'start'}">${nd.lbl}</text>`;});
+  el.innerHTML=`<svg width="${w}" height="${h}" class="map">${g}</svg>`;
+}
+
+/* ---------- LLM mode ---------- */
+let LLM='auto';
+function mbHTML(ms){return LLM==='cache'?`${ico('spark',11)} Response cache · ${ms?14:12} ms · grounded`:`${ico('spark',11)} Qwen3-4B · local HF · ${ms||'2.1'} s · grounded`;}
+function setLLM(m){LLM=m;$$('#llmSeg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$$('#dmMode label').forEach(l=>{l.classList.toggle('on',l.dataset.m===m);l.querySelector('input').checked=l.dataset.m===m;});
+  $$('[data-mb]').forEach(e=>{e.className='mb'+(m==='cache'?' cache':'');e.innerHTML=mbHTML();});
+  $('#llmName').textContent=m==='cache'?'Response cache · offline':'Qwen3-4B · local (MLX)';$('#llmSub').textContent=m==='auto'?'Hugging Face · cache fallback on':m==='local'?'Hugging Face · live generation only':'No model needed · instant';$('#llmDot').className='dot '+(m==='cache'?'':'ai');}
+$$('#llmSeg button').forEach(b=>b.onclick=()=>{setLLM(b.dataset.m);toast(b.dataset.m==='cache'?'LLM mode: cache only. Narratives are served from the grounded response cache':'LLM mode: '+(b.dataset.m==='auto'?'Auto (local Hugging Face model → cache fallback)':'local Hugging Face model only'));});
+$$('#dmMode label').forEach(l=>l.onclick=()=>setLLM(l.dataset.m));
+
+/* ---------- data ---------- */
+const MK=[
+ {c:'MX',n:'Mexico',rev:38.2,py:8.1,plan:99.4,vol:4410,sh:27.9,shd:0.6,gm:39.8,otif:92.1,al:3},
+ {c:'BR',n:'Brazil',rev:21.6,py:5.4,plan:98.1,vol:2620,sh:18.4,shd:0.3,gm:37.9,otif:90.2,al:2},
+ {c:'CO',n:'Colombia',rev:8.9,py:9.8,plan:101.2,vol:1020,sh:21.7,shd:0.9,gm:38.1,otif:93.5,al:1},
+ {c:'PE',n:'Peru',rev:5.3,py:3.1,plan:95.8,vol:640,sh:19.2,shd:-0.4,gm:36.4,otif:86.8,al:2},
+ {c:'CL',n:'Chile',rev:4.8,py:2.2,plan:96.9,vol:470,sh:16.8,shd:-0.2,gm:40.2,otif:94.0,al:0},
+ {c:'AR',n:'Argentina',rev:3.9,py:12.4,plan:100.6,vol:380,sh:14.1,shd:0.2,gm:35.7,otif:89.9,al:1},
+ {c:'CA',n:'C. America',rev:3.7,py:6.0,plan:99.0,vol:300,sh:23.5,shd:0.5,gm:38.8,otif:91.0,al:0}];
+
+/* ---------- 1. overview ---------- */
+function kpiTiles(el,list){el.innerHTML=list.map((k,i)=>`<div class="panel kpi"><div class="kl">${k.l}</div><div class="kv">${k.v}</div><div class="kd"><span class="${k.c}">${k.d}</span><span class="ks">${k.s}</span></div><div class="ksp">${spark(series(11+i*7,20,100,k.dr||.004,.05),k.col||(k.c==='dn'?'var(--neg)':'var(--gold)'),70,26)}</div></div>`).join('');}
+function renderOverview(){
+  kpiTiles($('#ovKpis'),[
+    {l:'Net revenue · MTD',v:'$86.4M',d:'+7.2% vs PY',c:'up',s:'98.6% of plan'},
+    {l:'Volume · MTD',v:'9,840 t',d:'+1.9% vs PY',c:'up',s:'price/mix +5.3 pp'},
+    {l:'Gross margin',v:'38.6%',d:'−1.4 pp',c:'dn',s:'cocoa cost',dr:-.004},
+    {l:'Value share · chocolate',v:'24.3%',d:'+0.4 pp',c:'up',s:'MAT, 7 markets'},
+    {l:'OTIF',v:'91.4%',d:'−0.8 pp',c:'dn',s:'Peru, Brazil North',dr:-.002},
+    {l:'Forecast accuracy',v:'82.6%',d:'+13.5 pp',c:'up',s:'AI vs SAP baseline',col:'var(--teal)'}]);
+  const B=[
+    {s:'var(--neg)',t:'Competitor price cut in CDMX modern trade',p:'Helvetia cut its Classic 90g by 12% at Hiper Nacional (41 stores), detected 06:40 from the POS scan feed. Dulcera 90g sell-out is down 9.1% WoW in those stores.',a:[['Targeted −5% TPR · saves MXN 185k GP vs holding','p-ai'],['Open in Pricing','go:pricing']]},
+    {s:'var(--neg)',t:'Día de Muertos stock-out risk · DC CDMX',p:'Fiesta Bites 150g is projected to stock out on 2 Nov with 78% probability. Sell-out is +14% vs plan, and DC Guadalajara holds 71 days of excess.',a:[['STO 1,840 cs GDL → CDMX + pull-in MX01 order','p-ai'],['Open SAP overlay','go:sap']]},
+    {s:'var(--warn)',t:'Huaico closes Carretera Central (Peru)',p:'6 loads for Huancayo and Junín (41 customers) are blocked at km 98 for 36–48 h, in the week of the Todos los Santos peak.',a:[['Re-route via Canta + re-source Cusco from Arequipa','p-ai'],['Route optimizer','go:routes']]},
+    {s:'var(--pos)',t:'Brazil Páscoa 2027 starts early',p:'Key-account pre-orders are +11% vs last year at this point. The AI forecast lifts the Easter-egg production plan +6% at plant BR01 (line L3 at 94% in February).',a:[['Raise PIRs & book 1,200 climate-controlled pallets','p-ai'],['Forecast','go:forecast']]},
+    {s:'var(--info)',t:'Argentina CPI print 2.1% m/m (mock)',p:'Our price index vs the category has drifted to 96. The indexation model recommends +4.5% list from 9 Nov.',a:[['+$146k GP / month','p-ai']]}];
+  $('#ovBrief').innerHTML=B.map(b=>`<div class="brief"><span class="sev" style="background:${b.s}"></span><div><h4>${b.t}</h4><p>${b.p}</p><div class="acts">${b.a.map(x=>x[1].startsWith('go:')?`<button class="btn sm ghost" data-go="${x[1].slice(3)}">${x[0]} →</button>`:`<span class="pill ${x[1]}">${ico('spark',11)} ${x[0]}</span>`).join('')}</div></div></div>`).join('');
+  mapSVG($('#ovMap'),{view:[-119,-32,-56,33.5],
+    bubbles:[{lat:23.6,lon:-102.5,r:30,c:'var(--pos)',t:'MX $38.2M',tip:'Mexico +8.1% vs PY'},{lat:-11,lon:-52,r:24,c:'var(--pos)',t:'BR $21.6M',tip:'Brazil +5.4%'},{lat:3.5,lon:-73.5,r:15,c:'var(--pos)',t:'CO $8.9M',tip:'Colombia +9.8%'},{lat:-9.8,lon:-75.2,r:12,c:'var(--warn)',t:'PE $5.3M',tip:'Peru 95.8% of plan'},{lat:-31,lon:-71.2,r:11,c:'var(--warn)',t:'CL $4.8M',tip:'Chile 96.9% of plan'},{lat:-37,lon:-64.5,r:10,c:'var(--pos)',t:'AR $3.9M',tip:'Argentina +12.4% (USD const.)'},{lat:13.6,lon:-86.5,r:10,c:'var(--pos)',t:'CAM $3.7M',tip:'Central America +6.0%'}],
+    lanes:[{a:[25.67,-100.31],b:[19.67,-99.18],flow:1},{a:[25.67,-100.31],b:[32.51,-117.04]},{a:[25.67,-100.31],b:[20.97,-89.62]},{a:[20.67,-103.35],b:[19.67,-99.18],flow:1,k:.3},{a:[19.67,-99.18],b:[14.63,-90.51]},{a:[19.05,-104.32],b:[-12.05,-77.15],sea:1,k:.12},{a:[19.2,-96.13],b:[10.4,-75.53],sea:1},{a:[10.4,-75.53],b:[9.36,-79.9],sea:1},{a:[-23.19,-46.88],b:[-8.05,-34.95]},{a:[-23.19,-46.88],b:[-3.12,-60.02],sea:1,k:.15},{a:[-23.19,-46.88],b:[-30.03,-51.23]},{a:[-30.03,-51.23],b:[-34.46,-58.91]},{a:[-34.46,-58.91],b:[-33.44,-70.79],k:.1},{a:[4.71,-74.21],b:[6.24,-75.58]},{a:[4.71,-74.21],b:[10.96,-74.8]},{a:[-12.27,-76.87],b:[-16.4,-71.54]}],
+    nodes:[{t:'plant',n:'Plant MX01 · Monterrey',lat:25.67,lon:-100.31,alert:1,lbl:'MX01',dx:9},{t:'plant',n:'Plant MX02 · Guadalajara',lat:20.67,lon:-103.35,lbl:'MX02',dx:-9,anc:'end'},{t:'plant',n:'Plant BR01 · Jundiaí',lat:-23.19,lon:-46.88,lbl:'BR01',dx:9},
+      {n:'DC CDMX',lat:19.67,lon:-99.18,alert:1},{n:'DC Mérida',lat:20.97,lon:-89.62},{n:'DC Tijuana',lat:32.51,lon:-117.04},{n:'DC Guatemala',lat:14.63,lon:-90.51},{n:'Hub Colón FTZ',lat:9.36,lon:-79.9},{n:'DC Bogotá',lat:4.71,lon:-74.21},{n:'DC Medellín',lat:6.24,lon:-75.58},{n:'DC Barranquilla',lat:10.96,lon:-74.8},{n:'DC Lima',lat:-12.27,lon:-76.87,alert:1},{n:'DC Arequipa',lat:-16.4,lon:-71.54},{n:'DC Santiago',lat:-33.44,lon:-70.79},{n:'DC Buenos Aires',lat:-34.46,lon:-58.91,alert:1},{n:'DC Recife',lat:-8.05,lon:-34.95},{n:'DC Manaus',lat:-3.12,lon:-60.02,alert:1},{n:'DC Porto Alegre',lat:-30.03,lon:-51.23}]});
+  $('#ovTable').innerHTML=`<thead><tr><th>Market</th><th class="r">Net rev MTD</th><th class="r">vs PY</th><th>vs plan</th><th class="r">Volume t</th><th class="r">Value share</th><th class="r">GM</th><th class="r">OTIF</th><th class="c">Alerts</th></tr></thead><tbody>${MK.map(m=>`<tr><td><span class="flag">${m.c}</span>${m.n}</td><td class="r"><b>$${m.rev.toFixed(1)}M</b></td><td class="r ${m.py>=0?'up':'dn'}">${sgn(m.py)}</td><td><div style="display:flex;gap:8px;align-items:center"><div class="bar-in" style="flex:1"><i style="width:${Math.min(100,m.plan)}%;background:${m.plan>=98?'var(--pos)':'var(--warn)'}"></i></div><span class="num mut" style="font-size:11px">${m.plan.toFixed(1)}%</span></div></td><td class="r">${fmtN(m.vol)}</td><td class="r">${m.sh.toFixed(1)}% <span class="${m.shd>=0?'up':'dn'}" style="font-size:11px">${sgn(m.shd,1,'')}</span></td><td class="r">${m.gm.toFixed(1)}%</td><td class="r ${m.otif<90?'dn':''}">${m.otif.toFixed(1)}%</td><td class="c">${m.al?`<span class="pill p-neg">${m.al}</span>`:'<span class="mut">—</span>'}</td></tr>`).join('')}</tbody>`;
+  renderPulse();
+  const ch=[['Traditional trade',54,'var(--gold)'],['Modern trade',25,'var(--info)'],['Convenience',8,'var(--teal)'],['Discount / atacarejo',8,'var(--ai)'],['E-commerce',5,'var(--tx3)']];
+  $('#ovChan').innerHTML=`<div class="stk" style="height:10px">${ch.map(c=>`<i style="width:${c[1]}%;background:${c[2]}"></i>`).join('')}</div><div class="legend" style="margin-top:6px">${ch.map(c=>`<span><i class="sw" style="background:${c[2]}"></i>${c[0]} ${c[1]}%</span>`).join('')}</div>`;
+  const recs=[
+    ['Pricing','MX','p-gold','TPR −5% on Dulcera 90g at Hiper Nacional (41 stores), 3 weeks','GP saved','MXN 185k vs hold',86,'RGM Mexico'],
+    ['Supply','MX','p-info','STO 1,840 cs Fiesta Bites 150g · DC GDL → DC CDMX + pull-in MX01 order 3 days','Revenue protected','$318k',91,'Supply planner MX'],
+    ['Logistics','PE','p-warn','Re-route 2 urgent loads via Canta–Cerro de Pasco; re-source Cusco from Arequipa','On-time','61% → 94%',82,'Transport PE'],
+    ['Pricing','AR','p-gold','List price +4.5% from 9 Nov (CPI indexation), hold 12g coin price point','GP','+$146k / month',77,'RGM Southern Cone'],
+    ['Promo','MX','p-ai','Replace Buen Fin 3x2 on Dulcera 40g with “2 × MXN 40” bundle','Promo ROI','0.9x → 1.4x',80,'Trade marketing MX'],
+    ['Supply','BR','p-info','Pre-build 3 weeks of stock at DC Manaus before Rio Negro low-water peak','Lost sales avoided','R$ 2.1M',74,'Supply planner BR']];
+  $('#ovRecs').innerHTML=recs.map(r=>`<div class="rec"><div class="top"><span class="pill ${r[2]}">${r[0]}</span><span class="pill">${r[1]}</span><span class="conf">confidence ${r[6]}%</span></div><h4>${r[3]}</h4><div class="meta"><span>${r[4]} <b>${r[5]}</b></span><span>Owner <b>${r[7]}</b></span></div><div class="acts"><button class="btn pri sm" data-toast="Approved · queued for SAP write-back (simulated)">Approve</button><button class="btn sm">Simulate</button><button class="btn sm ghost">Dismiss</button></div></div>`).join('');
+}
+let PULSE=series(5,60,880,0,.12);
+function renderPulse(){const el=$('#ovPulse');if(!el||!el.offsetParent)return;lineChart(el,{x:PULSE.map((_,i)=>(i-59)+'m'),xEvery:15,h:150,padL:36,series:[{name:'Units / min',data:PULSE,color:'var(--pos)',area:1,w:1.8}]});}
+setInterval(()=>{PULSE.push(PULSE[PULSE.length-1]*(1+(Math.random()-.48)*.1));PULSE.shift();const tx=Math.round(1150+Math.random()*260);$('#liveTx').textContent=fmtN(tx);if(cur==='overview')renderPulse();},2000);
+
+/* ---------- 2. pricing ---------- */
+const U0=20976,P0=39.90,M0=12.33,HZ=8,CW=3,COMP=41.50;
+function sim(d,w,disp,cc=.12){const e=-3.0,c=1.1,carry=1.6,decay=.85,pantry=.3,dcw=22000,upl=1.06,compF=Math.pow(1-cc,c);let gp=0,u=0,vs=0,prev=1,pu=0;
+  for(let i=1;i<=HZ;i++){let vf,mg=M0;if(i<=w){vf=Math.pow(1-d,e)*(i<=CW?compF:1)*(disp?upl:1);mg=M0-d*P0;pu+=U0*vf;}else if(i<=CW)vf=compF;else{const loss=Math.max(0,1-vs/CW)*carry*Math.pow(decay,i-CW-1),dip=i===Math.max(w,CW)+1?pantry*Math.max(0,prev-1):0;vf=Math.max(.3,1-loss-dip);}
+    if(i<=CW)vs+=vf;prev=vf;u+=U0*vf;gp+=U0*vf*mg;}
+  const dgp=gp-U0*M0*HZ-(disp?dcw*w:0),spend=d*P0*pu;return{dgp,vol:u/(U0*HZ)-1,price:P0*(1-d),idx:P0*(1-d)/(COMP*(1-cc))*100,spend};}
+function renderPricing(){
+  const hold=sim(0,0,false),match=sim(.12,3,false),ai=sim(.05,3,false);
+  const O=[['A · Hold price','Keep MXN 39.90; rely on brand loyalty',hold,false],['B · Full match −12%','Match Helvetia at MXN 35.11 for 3 weeks',match,false],['C · TPR −5%','MXN 37.90 for 3 weeks, timed to the competitor window',ai,true]];
+  $('#prOpts').innerHTML=O.map(o=>{const r=o[2],roi=r.spend?((r.dgp-hold.dgp)/r.spend):null;return `<div class="opt ${o[3]?'best':''}"><div style="display:flex;align-items:center;gap:6px"><h4>${o[0]}</h4>${o[3]?`<span class="pill p-ai" style="margin-left:auto">${ico('spark',11)} Recommended</span>`:''}</div><div class="desc">${o[1]}</div>
+    <div class="mrow"><span>Shelf price</span><b>MXN ${r.price.toFixed(2)}</b></div>
+    <div class="mrow"><span>Price index vs Helvetia</span><b class="${r.idx>105||r.idx<95?'dn':'up'}">${r.idx.toFixed(0)}</b></div>
+    <div class="mrow"><span>Volume · 8 wks</span><b class="${r.vol>=0?'up':'dn'}">${sgn(r.vol*100)}</b></div>
+    <div class="mrow"><span>Value share Δ</span><b class="${r.vol>=0?'up':'dn'}">${sgn(r.vol*10,1,' pp')}</b></div>
+    <div class="mrow"><span>Gross profit Δ</span><b class="dn">MXN ${fmtK(r.dgp)}</b></div>
+    <div class="mrow"><span>Promo ROI vs hold</span><b>${roi==null?'—':roi.toFixed(1)+'x'}</b></div>
+    ${o[3]?`<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn pri sm" data-toast="Price condition K007 (5%, 28 Oct – 17 Nov) sent to RGM manager for approval">Approve → SAP condition</button><button class="btn sm ghost">Explain</button></div>`:''}</div>`;}).join('');
+  const D=[['Competitor price gap (idx 109)',.42],['MT promo elasticity (−3.0)',.21],['Día de Muertos seasonality',.14],['DC stock cover 11 days',-.06],['Post-promo dip / pantry load',-.09],['Promo margin floor (≤ 12.4%)',-.18]];
+  $('#prDrivers').innerHTML=D.map(d=>`<div class="drv"><span class="mut">${d[0]}</span><div class="trk"><i style="${d[1]>=0?`left:50%;width:${d[1]*100}%;background:var(--ai)`:`right:50%;width:${-d[1]*100}%;background:var(--warn)`}"></i></div><span class="num r" style="font-size:11px">${d[1]>0?'+':'−'}${Math.abs(d[1]).toFixed(2)}</span></div>`).join('');
+  const G=[['ok','Promo margin floor','5% ≤ 12.4% max depth'],['ok','Price index band','104 within 95–105'],['ok','Approved price point','MXN 37.90 on ladder'],['ok','Trade budget','MXN 0.31M of 4.2M Q4 remaining'],['w','Customer agreement','Hiper Nacional needs 48 h exception (KAM)'],['ok','Regulatory','NOM-051 labels unaffected, no kids-targeted claims']];
+  $('#prGuard').innerHTML=G.map(g=>`<div class="gl-item"><span class="ck ${g[0]}">${g[0]==='ok'?'✓':'!'}</span><div><b>${g[1]}</b> · ${g[2]}</div></div>`).join('');
+  updateSim();
+  $('#prPPA').innerHTML=`<thead><tr><th>Pack</th><th>Channel</th><th class="r">Now</th><th>AI</th></tr></thead><tbody>${[
+    ['Rayo 12g','TT','$10','<span class="pill p-pos">Hold $10</span><div class="mut" style="font-size:10.5px;margin-top:2px">cliff at $11: −24% vol</div>'],
+    ['Rayo Doble 20g','TT','—','<span class="pill p-ai">Launch $15</span><div class="mut" style="font-size:10.5px;margin-top:2px">trade-up path · +MXN 21M/yr</div>'],
+    ['Dulcera 40g','TT · Conv','$22','<span class="pill p-gold">$23</span><div class="mut" style="font-size:10.5px;margin-top:2px">elasticity −0.9, below $25</div>'],
+    ['Dulcera 90g','MT','$39.90','<span class="pill p-ai">TPR $37.90</span>'],
+    ['Fiesta Bites 150g','MT','$79','<span class="pill p-pos">Hold</span><div class="mut" style="font-size:10.5px;margin-top:2px">supply-constrained</div>'],
+    ['Cacao Alto 70% 100g','MT premium','$64','<span class="pill p-gold">$68</span><div class="mut" style="font-size:10.5px;margin-top:2px">index 112 vs Helvetia dark</div>']].map(r=>`<tr><td><b>${r[0]}</b></td><td class="mut">${r[1]}</td><td class="r">${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody>`;
+  const wk=['W44','W45','W46','W47','W48','W49','W50','W51','W52','W53','W01','W02'],col=i=>`${(i/12*100).toFixed(2)}%`,wid=n=>`${(n/12*100).toFixed(2)}%`;
+  const rows=[['Fiesta Bites 150g · Día de Muertos display',0,1,'var(--pos)','ROI 1.8x'],['Dulcera 90g · TPR −5% (AI draft)',0,3,'var(--ai)','AI draft · ROI 1.4x'],['Dulcera 40g · Buen Fin 3x2',2,1,'var(--neg)','0.9x ⚠'],['Rayo 12g · tienda pre-venta incentive',3,4,'var(--warn)','ROI 1.2x'],['Crunchita · convenience combo',1,4,'var(--warn)','ROI 1.1x'],['Cacao Alto · Navidad gift pack',5,4,'var(--pos)','ROI 1.5x']];
+  $('#prGantt').innerHTML=`<div class="gantt"><div></div><div class="gh">${wk.map(w=>`<span>${w}</span>`).join('')}</div>
+    <div class="gl2 mut">Events</div><div class="gt" style="height:32px"><span class="ev" style="left:${col(0)}">Muertos</span><span class="ev" style="left:${col(2)}">Buen Fin</span><span class="ev" style="left:${col(6.4)}">Guadalupe–Reyes</span><span class="ev" style="left:${col(8.6)}">Navidad</span></div>
+    ${rows.map(r=>`<div class="gl2">${r[0]}</div><div class="gt" style="height:32px"><span class="gb" style="left:${col(r[1])};width:${wid(r[2])};background:${r[3]};${r[3]==='var(--ai)'?'outline:1px dashed #fff;outline-offset:-3px':''}">${r[4]}</span></div>`).join('')}</div>`;
+  const ccx=['J24','','','A','','','J','','','O','','','J25','','','A','','','J','','','O','','','J26','','','A','','','J','','','O'];
+  const cocoa=[100,108,121,138,152,149,141,146,158,162,155,149,151,147,139,133,128,131,136,140,137,134,138,141,143,140,137,139,141,144,142,140,141,141];
+  lineChart($('#prCocoa'),{x:ccx.map((l,i)=>l||' '),xEvery:3,h:130,padL:34,series:[{name:'Cocoa cost index',data:cocoa,color:'var(--gold)',area:1}]});
+  $('#prPass').innerHTML=`<thead><tr><th>Mkt</th><th class="r">COGS Δ</th><th>Recommended</th></tr></thead><tbody>${[['MX','+3.1%','PPA first, +2.5% list on 90g+'],['BR','+3.6%','+3.0% list in Jan, before Páscoa'],['CO','+3.3%','+4.0% (health tax already in base)'],['PE','+2.9%','+2.0% list + shallower promos'],['AR','+3.8%','fold into biweekly indexation']].map(r=>`<tr><td><span class="flag">${r[0]}</span></td><td class="r dn">${r[1]}</td><td style="font-size:11.5px">${r[2]}</td></tr>`).join('')}</tbody>`;
+}
+function updateSim(){const d=+$('#iD').value/100,w=+$('#iW').value,cc=+$('#iC').value/100,disp=$('#iDisp').checked;
+  $('#vD').textContent=Math.round(d*100)+'%';$('#vW').textContent=w+(w>1?' wks':' wk');$('#vC').textContent=Math.round(cc*100)+'%';
+  const r=sim(d,w,disp,cc),floor=d<=.124,band=r.idx>=95&&r.idx<=105;
+  $('#oP').textContent='MXN '+r.price.toFixed(2);$('#oI').innerHTML=`<span class="${band?'up':'dn'}">${r.idx.toFixed(0)}</span>`;$('#oV').innerHTML=`<span class="${r.vol>=0?'up':'dn'}">${sgn(r.vol*100)}</span>`;$('#oG').innerHTML=`<span class="${r.dgp>=0?'up':'dn'}">${r.dgp<0?'−':'+'}${fmtK(Math.abs(r.dgp))}</span>`;
+  $('#oGuard').innerHTML=floor?'<span class="pill p-pos">✓ margin floor</span>':'<span class="pill p-neg">✕ breaks margin floor</span>';
+  const xs=[...Array(21).keys()],curve=xs.map(x=>sim(x/100,w,disp,cc).dgp);let bi=0;curve.forEach((v,i)=>{if(v>curve[bi]&&i<=12)bi=i;});
+  const el=$('#prCurve');if(el.offsetParent)lineChart(el,{x:xs.map(x=>x+'%'),xEvery:2,h:200,padL:48,fmt:v=>fmtK(v),tfmt:v=>'MXN '+fmtK(v),series:[{name:'GP Δ (8 wks)',data:curve,color:'var(--ai)',markers:[{i:bi,fill:'var(--ai)',label:'AI optimum '+bi+'%'},{i:Math.round(d*100),fill:'var(--gold)',r:6}]}]});
+  $('#bestBtn').onclick=()=>{$('#iD').value=bi;updateSim();};}
+['iD','iW','iC','iDisp'].forEach(id=>$('#'+id).addEventListener('input',updateSim));
+
+/* ---------- 3. market ---------- */
+function renderMarket(){
+  kpiTiles($('#mkKpis'),[{l:'Category value growth · LATAM',v:'+9.4%',d:'nominal YoY',c:'up',s:'volume +1.2%'},{l:'Our value share',v:'24.3%',d:'+0.4 pp',c:'up',s:'#1 in MX, CO, CAM'},{l:'Price index vs category',v:'103',d:'+2 pts',c:'wn',s:'band 98–106'},{l:'Volume sold on promotion',v:'31%',d:'+3 pp',c:'dn',s:'promo pressure rising',dr:.006},{l:'Traditional trade share',v:'54%',d:'−1.1 pp YoY',c:'mut',s:'~1.2M points of sale',dr:-.002}]);
+  const T=[['Sin azúcar / zero sugar','MX · CO · CL','+38%','Dulcera Zero numeric distribution in TT is only 22%. <b>Expand to 4,000 tiendas</b> in Bogotá &amp; CDMX.',2],['Premium dark 70%+','BR · CL · MX urban','+22%','Cacao Alto has <b>+6% price headroom</b>, index 112 with no share loss.',3],['Single-serve ≤ MXN 10 / R$ 3','Traditional trade','+17%','<b>Protect coin price points.</b> Use grammage &amp; trade-up packs, not price.',5],['Gifting · Navidad &amp; Páscoa','BR · MX','+11%','Páscoa 2027 pre-orders are early. <b>Lift egg production +6%</b> at BR01.',7],['Value seeking: discount &amp; atacarejo','BR · CO · PE','+14%','<b>Discounter-specific packs</b> (multipacks) to avoid diluting MT price.',9],['Protein / better-for-you','MX · CL','+9%','Adjacency test: <b>Crunchita Protein</b> in convenience &amp; e-com.',11]];
+  $('#mkTrends').innerHTML=T.map(t=>`<div class="trend"><div class="tt2"><div><h4>${t[0]}</h4><div class="mk">${t[1]}</div></div><div style="text-align:right"><b class="up">${t[2]}</b><div class="mk">YoY</div></div></div>${spark(series(t[4]*13,26,100,.012,.09),'var(--teal)',200,28)}<div class="imp"><span class="aic">AI →</span> ${t[3]}</div></div>`).join('');
+  const SC=[['Northstar','var(--gold)'],['Helvetia (global)','var(--info)'],['Andina Dulces','var(--ai)'],['Private label','var(--tx3)'],['Others','var(--line2)']];
+  $('#mkShareLg').innerHTML=SC.map(s=>`<span><i class="sw" style="background:${s[1]};height:8px"></i>${s[0]}</span>`).join('');
+  const SD={MX:[27.9,24.1,9.2,6.0],BR:[18.4,29.5,12.0,5.1],CO:[21.7,17.9,22.4,4.0],PE:[19.2,21.0,15.3,6.2],CL:[16.8,26.4,8.8,9.9],AR:[14.1,19.8,24.6,5.4],CA:[23.5,20.2,10.1,3.8]};
+  $('#mkShare').innerHTML=Object.entries(SD).map(([k,v])=>{const o=100-v.reduce((a,b)=>a+b,0);return `<div class="srow"><span><span class="flag">${k}</span><b class="num">${v[0].toFixed(1)}%</b></span><div class="stk">${[...v,o].map((x,i)=>`<i style="width:${x}%;background:${SC[i][1]}" title="${SC[i][0]} ${x.toFixed(1)}%"></i>`).join('')}</div></div>`;}).join('');
+  const regs=['MX · Norte','MX · Bajío','MX · CDMX metro','MX · Sureste','BR · São Paulo','BR · Sul','BR · Nordeste','BR · Norte','CO · Andina','CO · Caribe','PE · Lima','PE · Sierra centro','CL · RM','AR · AMBA','CAM'];
+  const wks=['W33','W34','W35','W36','W37','W38','W39','W40','W41','W42','W43','W44'],r=R(77);
+  const ov={'MX · CDMX metro':{11:-9},'MX · Norte':{10:-6,11:-7},'BR · Norte':{8:-6,9:-8,10:-9,11:-8},'PE · Sierra centro':{11:-12},'MX · Bajío':{11:14},'MX · Sureste':{11:11},'CO · Andina':{10:9,11:10}};
+  $('#mkHeat').innerHTML=`<div class="hm" style="grid-template-columns:130px repeat(12,minmax(34px,1fr))"><div></div>${wks.map(w=>`<div class="ch">${w}</div>`).join('')}${regs.map(rg=>`<div class="rl">${rg}</div>${wks.map((_,i)=>{let v=Math.round((r()-.4)*7);if(ov[rg]&&ov[rg][i]!=null)v=ov[rg][i];const a=Math.min(.85,Math.abs(v)/14+.08),c=v>=0?`rgba(63,207,142,${a})`:`rgba(242,100,111,${a})`;return `<div class="c" style="background:${c}" title="${rg} ${wks[i]}: ${v>0?'+':''}${v}%">${v>0?'+':''}${v}</div>`;}).join('')}`).join('')}</div>`;
+  const L=[['var(--info)','Macro (mock)','ARS −2.1% w/w (crawling band) · AR CPI 2.1% m/m · BRL +0.8% w/w · MXN stable'],['var(--warn)','Weather','Heat alerts: Monterrey 39°C, Mérida 38°C, Barranquilla 35°C → melt risk; Peru Andes rainy season starting'],['var(--ai)','Regulation','MX NOM-051 warning octagons · CO health tax on ultra-processed (20%) · CL Ley 20.606 ad limits · BR RDC 429 front-label magnifier'],['var(--gold)','Calendar','Día de Muertos 1–2 Nov · Buen Fin 13–16 Nov · BR Black Friday 27 Nov · Navidad · Páscoa 28 Mar 2027'],['var(--teal)','Route-to-market','~1.2M traditional points of sale · pre-venta + distributor model · cash-heavy tiendas']];
+  $('#mkLocal').innerHTML=L.map(l=>`<div class="fi"><span class="sev" style="background:${l[0]};width:3px;border-radius:3px"></span><div><b style="font-size:12px">${l[1]}</b><div class="mut" style="font-size:11.5px;margin-top:2px">${l[2]}</div></div></div>`).join('');
+  const CH=[['Traditional','var(--gold)',[58,57.5,57,56.4,56,55.4,55,54.6,54.2,54]],['Modern','var(--info)',[26,26,25.8,25.6,25.5,25.4,25.2,25.1,25,25]],['Convenience','var(--teal)',[7,7.1,7.2,7.4,7.5,7.6,7.7,7.8,7.9,8]],['Discount / atacarejo','var(--ai)',[5,5.2,5.5,5.9,6.2,6.6,7,7.4,7.7,8]],['E-commerce','var(--tx3)',[4,4.2,4.5,4.7,4.8,5,5.1,5.1,5.2,5]]];
+  $('#mkChLg').innerHTML=CH.map(c=>`<span><i class="sw" style="background:${c[1]};height:8px"></i>${c[0]}</span>`).join('');
+  stackArea($('#mkChan'),['H1 22','H2 22','H1 23','H2 23','H1 24','H2 24','H1 25','H2 25','H1 26','H2 26'],CH);
+  const C=[['06:40','Helvetia Classic 90g −12% at Hiper Nacional CDMX/Edomex (41 stores)','POS scan feed','p-neg','Price'],['Yesterday','Andina Dulces launches 18g wafer at COP 1,500 in Colombian tiendas','Shelf audit','p-warn','Launch'],['Mon','Private-label 100g tablet enters atacarejo São Paulo at R$ 6.99','Retailer portal','p-warn','Entry'],['Fri','Helvetia pre-sells Páscoa 2027 to key accounts 2 weeks earlier than LY','Field sales notes','p-info','Seasonal'],['Thu','Andina Dulces +8% list in Argentina (2nd increase in 6 weeks)','Price tracker','p-pos','Price']];
+  $('#mkComp').innerHTML=C.map(c=>`<div class="fi"><span class="tm">${c[0]}</span><div style="flex:1">${c[1]}<div class="src">${c[2]}</div></div><span class="pill ${c[3]}" style="align-self:flex-start">${c[4]}</span></div>`).join('');
+}
+function stackArea(el,x,S){const w=el.clientWidth||500,h=190,p={l:34,r:10,t:8,b:22},n=x.length,X=i=>p.l+i/(n-1)*(w-p.l-p.r),Y=v=>p.t+(1-v/100)*(h-p.t-p.b);let base=Array(n).fill(0),g='';
+  [0,25,50,75,100].forEach(t=>g+=`<line x1="${p.l}" x2="${w-p.r}" y1="${Y(t)}" y2="${Y(t)}" class="gl"/><text x="${p.l-6}" y="${Y(t)+3}" class="ax" text-anchor="end">${t}%</text>`);
+  S.forEach(s=>{const top=s[2].map((v,i)=>base[i]+v);const d=top.map((v,i)=>(i?'L':'M')+X(i)+','+Y(v)).join('')+base.map((v,i)=>[i,v]).reverse().map(([i,v])=>'L'+X(i)+','+Y(v)).join('')+'Z';g+=`<path d="${d}" style="fill:${s[1]};opacity:.75"/>`;base=top;});
+  x.forEach((l,i)=>g+=`<text x="${X(i)}" y="${h-6}" class="ax" text-anchor="middle">${l}</text>`);el.innerHTML=`<svg width="${w}" height="${h}" class="chart">${g}</svg>`;}
+
+/* ---------- 4. forecast ---------- */
+function renderForecast(){
+  kpiTiles($('#fcKpis'),[{l:'Forecast accuracy · AI',v:'82.6%',d:'+13.5 pp',c:'up',s:'vs SAP IBP 69.1%',col:'var(--teal)'},{l:'Forecast bias · AI',v:'+1.8%',d:'SAP +9.4%',c:'up',s:'over-forecast cut',col:'var(--teal)'},{l:'Next 8 wks · LATAM',v:'412k cs',d:'+6.1% vs SAP',c:'up',s:'P10–P90 ±9%',col:'var(--teal)'},{l:'Demand-sensing signals',v:'7',d:'POS, promo, weather…',c:'mut',s:'',col:'var(--teal)'},{l:'Safety stock released',v:'$6.8M',d:'from lower error',c:'up',s:'same 97% service',col:'var(--teal)'}]);
+  const W=[];for(let w=40;w<=52;w++)W.push([25,w]);for(let w=1;w<=53;w++)W.push([26,w]);for(let w=1;w<=17;w++)W.push([27,w]);
+  const S=w=>({44:1.28,45:1.06,46:1.2,47:1.02,49:1.05,50:1.14,51:1.36,52:1.3,53:.8,1:.74,2:.82,6:1.08,7:1.34,8:.9,17:1.18,18:1.1})[w]||(w>=26&&w<=34?.86:1);
+  const r=R(42),now=56,act=[],sap=[],ai=[],lo=[],hi=[];
+  W.forEach(([y,w],i)=>{const base=5000*(1+.035*i/52),s=S(w),pr=(y===26&&w===46)?1.12:1;
+    act.push(i<=now?base*s*(1+(r()-.5)*.12)*(y===26&&w===44?1.08:1):null);
+    sap.push(i>=44?base*(1+.45*(s-1))*1.03:null);
+    if(i>=44&&i<now){ai.push(act[i]*(1+(r()-.5)*.07));lo.push(null);hi.push(null);}
+    else if(i===now){ai.push(act[i]);lo.push(act[i]);hi.push(act[i]);}
+    else if(i>now){const v=base*s*pr*1.025,bw=.07+.004*(i-now);ai.push(v);lo.push(v*(1-bw));hi.push(v*(1+bw*1.1));}
+    else{ai.push(null);lo.push(null);hi.push(null);}});
+  lineChart($('#fcChart'),{x:W.map(([y,w])=>`W${String(w).padStart(2,'0')}'${y}`),xEvery:8,h:280,split:now,tfmt:v=>fmtN(v)+' cs',
+    ann:[{i:4,label:'Muertos'},{i:12,label:'Navidad'},{i:19,label:'S. Valentín'},{i:30,label:'D. Niño'},{i:56,label:'Muertos'},{i:58,label:'Buen Fin'},{i:64,label:'Navidad'},{i:73,label:'S. Valentín'}],
+    band:{lo,hi,color:'var(--teal)'},series:[{name:'Actual',data:act,color:'var(--tx)',w:1.6},{name:'SAP IBP baseline',data:sap,color:'var(--tx3)',dash:'5 4',w:1.6},{name:'AI forecast P50',data:ai,color:'var(--teal)',w:2.2}]});
+  const BR=[['SAP IBP baseline',41200,0,'var(--tx3)'],['Seasonality & events',3900,1],['Buen Fin promo (TPM)',2600,1],['POS demand sensing',1450,1],['Helvetia price cut',-1100,1],['Heat, northern MX',-600,1],['January list price',-300,1],['AI forecast',47150,0,'var(--teal)']];
+  const lo0=38000,sp=10000,pc=v=>(v-lo0)/sp*100;let run=0;
+  $('#fcBridge').innerHTML=BR.map(b=>{let l,wd,c;if(!b[2]){l=0;wd=pc(b[1]);c=b[3];run=b[1];}else{const s=b[1]>0?run:run+b[1];l=pc(s);wd=Math.abs(b[1])/sp*100;c=b[1]>0?'var(--pos)':'var(--neg)';run+=b[1];}
+    return `<div class="wf"><span class="${b[2]?'mut':''}" style="${b[2]?'':'font-weight:600'}">${b[0]}</span><div class="trk"><i style="left:${l}%;width:${Math.max(wd,.6)}%;background:${c}"></i></div><span class="r num" style="${b[2]?'':'font-weight:600'}">${b[2]?(b[1]>0?'+':'−')+fmtN(Math.abs(b[1])):fmtN(b[1])}</span></div>`;}).join('')+
+    `<div class="mut" style="font-size:10.5px;margin-top:2px">Axis starts at 38k cases</div><div class="narr" style="margin-top:8px;font-size:12px">Net <b class="up">+14.4%</b> over the SAP baseline. The biggest gap is the approved Buen Fin promotion, which is missing from the PIRs (PBED).</div>`;
+  $('#fcAcc').innerHTML=`<thead><tr><th>Market</th><th class="r">SAP IBP</th><th class="r">AI</th><th>Improvement</th><th class="r">Bias AI</th></tr></thead><tbody>${[['MX',70.2,84.1,1.2],['BR',66.8,81.0,2.4],['CO',71.9,83.5,1.1],['PE',63.5,78.2,3.0],['CL',74.1,85.0,0.8],['AR',58.9,74.6,3.9],['CA',68.0,80.3,1.6]].map(a=>`<tr><td><span class="flag">${a[0]}</span></td><td class="r mut">${a[1].toFixed(1)}%</td><td class="r"><b>${a[2].toFixed(1)}%</b></td><td><div style="display:flex;gap:8px;align-items:center"><div class="bar-in" style="flex:1"><i style="width:${(a[2]-a[1])*5}%;background:var(--teal)"></i></div><span class="up num" style="font-size:11px">+${(a[2]-a[1]).toFixed(1)} pp</span></div></td><td class="r">+${a[3].toFixed(1)}%</td></tr>`).join('')}</tbody>`;
+  $('#fcWB').innerHTML=`<thead><tr><th>Week</th><th class="r">PIR now</th><th class="r">AI proposal</th><th class="r">Δ</th></tr></thead><tbody>${[['W45',5200,5980],['W46',5450,6630],['W47',5100,5420],['W48',5050,5310]].map(x=>`<tr><td>${x[0]} · 2026</td><td class="r mut">${fmtN(x[1])}</td><td class="r"><b>${fmtN(x[2])}</b></td><td class="r up">+${fmtN(x[2]-x[1])}</td></tr>`).join('')}</tbody>`;
+}
+
+/* ---------- 5. inventory ---------- */
+function renderInventory(){
+  kpiTiles($('#invKpis'),[{l:'Network days of supply',v:'34 d',d:'target 30',c:'wn',s:'18 DCs'},{l:'At-risk SKU × DC (14 d)',v:'23',d:'+7 vs last wk',c:'dn',s:'4 critical',dr:.01},{l:'Short shelf-life (< 60 d)',v:'$1.9M',d:'−$0.4M MoM',c:'up',s:'seasonal leftovers'},{l:'Case fill rate',v:'96.1%',d:'−0.6 pp',c:'dn',s:'target 97.5%',dr:-.002},{l:'Inventory value',v:'$142M',d:'−$6.8M opportunity',c:'up',s:'via AI safety stock'}]);
+  const DC=['CDMX','GDL','MTY','MID','TIJ','GUA','PTY','BOG','MDE','BAQ','LIM','AQP','SCL','BUE','CAJ','REC','MAO','POA'];
+  const SK=['Dulcera 90g','Dulcera 40g','Rayo 12g','Crunchita 35g','Cacao Alto 100g','Almendra 45g','Fiesta 150g','Dulcera Zero'];
+  const ov={'CDMX':{0:11,6:6},'GDL':{6:71},'TIJ':{6:64},'MTY':{6:58},'MAO':{0:9,2:8},'BAQ':{4:88},'LIM':{3:12},'REC':{7:5},'AQP':{3:52}},r=R(9);
+  const col=v=>v<7?'var(--neg)':v<15?'var(--warn)':v<=45?'var(--pos)':v<=60?'var(--info)':'var(--ex)';
+  $('#invMx').innerHTML=`<div class="mx" style="grid-template-columns:62px repeat(${SK.length},minmax(58px,1fr))"><div></div>${SK.map(s=>`<div class="mut" style="font-size:10px;text-align:center;line-height:1.2;padding-bottom:3px">${s}</div>`).join('')}${DC.map(d=>`<div class="mut" style="display:flex;align-items:center;font-weight:600">${d}</div>${SK.map((_,j)=>{let v=Math.round(16+r()*28);if(ov[d]&&ov[d][j]!=null)v=ov[d][j];const c=col(v);return `<div class="c" title="${d} · ${SK[j]}: ${v} days" style="background:color-mix(in oklab,${c} ${v<15||v>60?42:20}%,transparent);color:${v<15||v>60?'var(--tx)':'var(--tx2)'}">${v}</div>`;}).join('')}`).join('')}</div>`;
+  const A=[['STO · GDL → CDMX','Fiesta Bites 150g · 1,840 cs · arrives 29 Oct','Stock-out risk 78% → 6% · protects $318k revenue','Create STO in SAP (UB)'],['STO · CAJ → MAO','Dulcera 90g + Rayo 12g · 2,600 cs · road to Porto Velho, then Madeira barge (11 d)','Rio Negro low water: barge capacity −35% in Nov','Create STO in SAP (UB)'],['STO · BAQ → MDE','Cacao Alto 70% · 420 cs','88 d cover in coastal heat → move to cooler, premium-skewed Medellín','Create STO in SAP (UB)'],['Markdown · TIJ, MTY','Fiesta Calaverita 25g · 3,100 cs · 52 d to expiry','Hard-discount bundles before Buen Fin · 71% value recovery','Send to RGM']];
+  $('#invAct').innerHTML=A.map(a=>`<div class="sto"><h4>${a[0]}</h4><div class="ln">${a[1]}</div><div class="ln aic" style="font-size:11px">${a[2]}</div><div class="acts"><button class="btn pri sm" data-toast="${a[3]} · draft created and sent for approval (simulated)">${a[3]}</button><button class="btn sm ghost">Details</button></div></div>`).join('');
+  const days=['27 Oct','28','29','30','31','1 Nov','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'];
+  // daily demand and receipts match the MD04 overlay on the SAP Data Hub screen
+  const dem=[0,980,0,1350,1520,0,1180,0,0,640,620,580,560,540,600,620,700,820,980,1100,700];
+  const recAsis={8:3000,10:3000,16:3000},recAI={2:1840,5:3000,10:3000,15:1100,16:3000};
+  const asis=[],withai=[];let a=4200,b=4200;
+  dem.forEach((d,i)=>{a+=-d+(recAsis[i]||0);b+=-d+(recAI[i]||0);asis.push(a);withai.push(b);});
+  lineChart($('#invProj'),{x:days,xEvery:3,h:220,padT:30,tfmt:v=>fmtN(v)+' cs',hline:[{v:1600,color:'var(--warn)',label:'Safety stock 1,600'}],zero:1,series:[{name:'As-is',data:asis,color:'var(--neg)',dash:'5 4'},{name:'With AI plan',data:withai,color:'var(--teal)',w:2.4,markers:[{i:2,label:'STO +1,840'},{i:5,label:'Pull-in +3,000'},{i:15,label:'Buen Fin +1,100'}]}]});
+  const AG=[['< 30 days',0.4,'var(--neg)'],['30–60 days',1.5,'var(--warn)'],['60–90 days',3.2,'var(--info)'],['90–180 days',18.6,'var(--pos)'],['> 180 days',118.3,'var(--pos)']];
+  $('#invAge').innerHTML=AG.map(g=>`<div class="wf" style="grid-template-columns:90px 1fr 60px"><span class="mut">${g[0]}</span><div class="trk"><i style="left:0;width:${Math.max(1.2,Math.sqrt(g[1]/118.3)*100)}%;background:${g[2]};opacity:.8"></i></div><span class="r num">$${g[1].toFixed(1)}M</span></div>`).join('')+'<div class="mut" style="font-size:10.5px;margin-top:4px">Bar length on a square-root scale</div>';
+}
+
+/* ---------- 6. routes ---------- */
+function renderRoutes(){
+  const el=$('#rtMap');
+  mapSVG(el,{view:[-78.6,-69.6,-17.1,-10.1],
+    under:[P=>{const pts=[[-9.6,-77.3],[-10.5,-76.6],[-11.6,-76.1],[-12.8,-75],[-13.8,-73.5],[-14.6,-72],[-15.8,-70.6],[-17.5,-69.8]];const d=pts.map((q,i)=>{const[x,y]=P(q[0],q[1]);return(i?'L':'M')+x+','+y;}).join('');const[tx,ty]=P(-14.55,-73.9);return `<path d="${d}" style="fill:none;stroke:var(--cocoa);stroke-width:34;stroke-opacity:.3;stroke-linecap:round;stroke-linejoin:round"/><text x="${tx}" y="${ty}" class="cl" style="font-size:8.5px" transform="rotate(34 ${tx} ${ty})">CORDILLERA DE LOS ANDES</text>`;}],
+    labels:[{t:'PERU',lat:-11.4,lon:-73.2,st:'font-size:13px;letter-spacing:.3em'},{t:'PACIFIC OCEAN',lat:-15.6,lon:-77.2,st:'font-size:9px;fill:var(--info);opacity:.7'},{t:'BRAZIL',lat:-10.5,lon:-70.3}],
+    paths:[{pts:[[-12.27,-76.87],[-12.6,-76.65],[-13.71,-76.2],[-14.07,-75.73],[-14.83,-74.94],[-15.84,-74.26],[-16.4,-71.54]],c:'var(--tx3)',w:1.6},
+      {pts:[[-13.71,-76.2],[-13.6,-75.3],[-13.16,-74.22]],c:'var(--tx3)',w:1.6},
+      {pts:[[-12.27,-76.87],[-11.84,-76.38],[-11.76,-76.3]],c:'var(--neg)',w:2.6,dash:'6 4'},
+      {pts:[[-11.76,-76.3],[-11.6,-76.19],[-11.52,-75.9],[-11.78,-75.5],[-12.07,-75.2]],c:'var(--neg)',w:1.8,dash:'2 5'},
+      {pts:[[-12.27,-76.87],[-11.5,-77.2],[-11.47,-76.62],[-11.0,-76.37],[-10.68,-76.26],[-11.52,-75.9],[-11.78,-75.5],[-12.07,-75.2]],c:'var(--teal)',w:3,flow:1},
+      {pts:[[-16.4,-71.54],[-15.5,-70.13],[-14.8,-70.9],[-13.53,-71.97]],c:'var(--gold)',w:3,flow:1}],
+    nodes:[{n:'DC Lima (Lurín)',lat:-12.27,lon:-76.87,r:6,c:'var(--tx)',lbl:'DC Lima · Lurín',dx:-10,anc:'end',dy:4},{n:'DC Arequipa',lat:-16.4,lon:-71.54,r:6,c:'var(--tx)',lbl:'DC Arequipa',dx:-10,anc:'end',dy:4},
+      {t:'x',lat:-11.76,lon:-76.3,lbl:'km 98 · San Mateo',dx:-4,dy:22,anc:'end'},
+      {n:'Huancayo',lat:-12.07,lon:-75.2,c:'var(--teal)',r:5,lbl:'Huancayo',dx:9},{n:'La Oroya',lat:-11.52,lon:-75.9,lbl:'La Oroya',dx:9,dy:-2},{n:'Cerro de Pasco',lat:-10.68,lon:-76.26,lbl:'Cerro de Pasco',dx:9},{n:'Canta',lat:-11.47,lon:-76.62,lbl:'Canta',dx:-9,anc:'end',dy:-3},
+      {n:'Cusco',lat:-13.53,lon:-71.97,c:'var(--gold)',r:5,lbl:'Cusco',dx:9},{n:'Juliaca',lat:-15.5,lon:-70.13,lbl:'Juliaca',dx:-9,anc:'end',dy:-4},{n:'Ayacucho',lat:-13.16,lon:-74.22,lbl:'Ayacucho',dx:9},{n:'Ica',lat:-14.07,lon:-75.73,lbl:'Ica · 31°C',dx:9}]});
+  $('#rtCmp').innerHTML=`<div class="h">KPI</div><div class="h">Original plan</div><div class="h">AI re-optimized</div>${[['On-time delivery','61%','94%','up'],['Freight cost','S/ 248.3k','S/ 258.5k (+4.1%)','dn'],['Sales at risk','S/ 1.12M','S/ 0.14M','up'],['Melt-risk loads','3','0','up'],['Night driving, high-risk lanes','4 legs','0','up']].map(k=>`<div class="mut">${k[0]}</div><div>${k[1]}</div><div class="${k[3]}"><b>${k[2]}</b></div>`).join('')}`;
+  const RT=[['var(--teal)','R-07 · Lurín → Huancayo via Canta–Cerro de Pasco','2 urgent loads (Todos los Santos orders) · ETA +9 h · 38 km unpaved, daylight-only, escort advised'],['var(--gold)','R-12 · Arequipa → Juliaca → Cusco (re-sourced)','3 loads · 2,140 cs available at AQP · 19 h faster than from Lima'],['var(--tx3)','R-08…R-11 · Junín consolidated loads','Held 36 h at Lurín, re-planned when the road reopens · customers notified via pre-venta app'],['var(--info)','R-02 · Lurín → Ica → Ayacucho','Reefer on the Ica leg (31°C) · Vía Los Libertadores open']];
+  $('#rtRoutes').innerHTML=RT.map(t=>`<div class="route"><span class="sw2" style="background:${t[0]}"></span><div><h4>${t[1]}</h4><p>${t[2]}</p></div></div>`).join('');
+  $('#rtLayers').innerHTML=[['var(--neg)','Landslides & road closures','1 critical'],['var(--info)','Rain & flooding','Andes: moderate'],['var(--ai)','Cargo-theft corridors','MX 57D, BR-116'],['var(--warn)','Heat & melt risk (> 28°C)','Ica, Mérida, MTY'],['var(--cocoa)','Altitude > 4,000 m','Ticlio 4,818 m'],['var(--teal)','Border & port delays','Callao 14 h'],['var(--tx3)','Urban truck windows','Lima, Bogotá, CDMX']].map(l=>`<label class="layer"><input type="checkbox" checked style="accent-color:var(--ai)"><span class="sw3" style="background:${l[0]}"></span>${l[1]}<span class="v">${l[2]}</span></label>`).join('')+
+    `<div class="mut" style="font-size:10.5px;margin:10px 0 4px;letter-spacing:.06em">CONSTRAINTS</div><div class="kv2" style="grid-template-columns:120px 1fr;font-size:11.5px"><span>Fleet</span><span>18 vehicles · 6 reefer</span><span>Product temp</span><span>≤ 26°C chocolate</span><span>Driving</span><span>≤ 10 h/day · no night on red lanes</span><span>Time windows</span><span>Tienda delivery days (pre-venta)</span><span>Unpaved roads</span><span>Daylight only</span></div>`;
+  const rc=v=>v>=70?'var(--neg)':v>=50?'var(--warn)':v>=35?'var(--info)':'var(--pos)';
+  $('#rtLanes').innerHTML=`<thead><tr><th>Lane</th><th>Mode</th><th>Primary risk</th><th class="c">Risk</th><th>AI action</th></tr></thead><tbody>${[
+    ['PE · Lima → Huancayo (Carretera Central)','Road','Huaico, closed km 98',94,'Avoid · use Canta route'],
+    ['BR · Jundiaí → Manaus','Road + river','Rio Negro low water, barge −35%',77,'Pre-build 3 wks of stock'],
+    ['MX · Monterrey → CDMX (57D)','Road','Cargo-theft corridor Querétaro–Edomex',71,'Convoy window 06:00–15:00, GPS lock'],
+    ['MX · Monterrey → Mérida','Road','Heat 38°C, melt risk',64,'Reefer + 04:00 dispatch'],
+    ['PE · Lima → Huancayo via Canta','Road','Unpaved segments, altitude',58,'Daylight only, escort'],
+    ['CL · Santiago ← Buenos Aires (Cristo Redentor)','Road','Snow closure risk (seasonal)',46,'Sea backup via San Antonio'],
+    ['CO · Bogotá → Barranquilla','Road','Rain on Ruta del Sol',38,'Monitor'],
+    ['PE · Arequipa → Cusco','Road','Altitude 4,300 m',33,'OK']].map(l=>`<tr><td><b>${l[0]}</b></td><td class="mut">${l[1]}</td><td>${l[2]}</td><td class="c"><span class="risk" style="background:color-mix(in oklab,${rc(l[3])} 22%,transparent);color:${rc(l[3])}">${l[3]}</span></td><td class="aic" style="font-size:11.5px">${l[4]}</td></tr>`).join('')}</tbody>`;
+}
+$$('#rtScn .chip').forEach(c=>c.onclick=()=>{$$('#rtScn .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');if(!c.textContent.startsWith('Peru'))toast('Mock shows the Peru scenario. The built app renders each scenario live from the route solver.','');});
+
+/* ---------- 7. SAP ---------- */
+function renderSAP(){
+  $('#sapConn').innerHTML=[['System','S4P · S/4HANA 2023 (mock)'],['Client','100'],['Company codes','MX10 BR10 CO10 PE10 CL10 AR10 GT10'],['Access','OData v2/v4 + CDS views, read-only user'],['Mode','<span class="pill p-warn">Mock replica</span> CSV/Parquet'],['Switch to live','config.yaml → sap.mode: odata'],['Last full sync','27 Oct 2026 06:00'],['Delta sync','every 15 min (stock)'],['Write-back','Simulated · audit.log']].map(k=>`<span>${k[0]}</span><span>${k[1]}</span>`).join('');
+  $('#sapLin').innerHTML=`<thead><tr><th>Domain</th><th>SAP object</th><th>Interface</th><th class="r">Records</th><th>Fresh</th><th>Feeds</th></tr></thead><tbody>${[
+    ['Sales orders','VBAK / VBAP','API_SALES_ORDER_SRV','4.21M','06:00','Forecast · Pricing'],
+    ['Deliveries','LIKP / LIPS','API_OUTBOUND_DELIVERY_SRV','3.87M','06:00','Forecast · Inventory'],
+    ['Billing & conditions','VBRP · PRCD_ELEMENTS','I_BillingDocumentItem','3.95M','06:00','Pricing · Margin'],
+    ['Stock','MATDOC · I_MaterialStock','API_MATERIAL_STOCK_SRV','182k','15 min','Inventory'],
+    ['Material / MRP','MARA · MARC · MVKE','API_PRODUCT_SRV','1,412','daily','All modules'],
+    ['Customers','KNA1 · KNVV (BP)','API_BUSINESS_PARTNER','286k','daily','Pricing · Routes'],
+    ['PIRs','PBIM / PBED','BAPI_REQUIREMENTS_*','38k','06:00','Forecast ⇄ write-back'],
+    ['Planned orders','PLAF','API_PLANNED_ORDERS','6.2k','hourly','Inventory'],
+    ['Shipments','VTTK / VTTP','Shipment IDoc · CDS','92k','hourly','Routes'],
+    ['Non-SAP','POS · panel · weather · roads · FX','File / API (mock)','61.4M','live','All modules']].map(l=>`<tr><td><b>${l[0]}</b></td><td><code style="font-size:11px">${l[1]}</code></td><td class="mut" style="font-size:11px">${l[2]}</td><td class="r">${l[3]}</td><td class="mut">${l[4]}</td><td style="font-size:11.5px">${l[5]}</td></tr>`).join('')}</tbody>`;
+  $('#sapMd04').innerHTML=`<thead><tr><th>Date</th><th>MRP element</th><th>MRP element data</th><th class="r">Rec./reqd</th><th class="r">Avail. as-is</th><th class="r">Avail. AI plan</th><th>AI annotation</th></tr></thead><tbody>${[
+    ['27.10.2026','Stock','','','4,200','4,200','',''],
+    ['28.10.2026','CusOrd','0001204511/10','−980','3,220','3,220','',''],
+    ['29.10.2026','POitem','4500098811/10 · STO from MX2D','+1,840','—','5,060','<span class="pill p-ai">AI draft</span> uses 71 d excess at DC GDL','ai'],
+    ['30.10.2026','IndReq','VSF · PIR','−1,350','1,870','3,710','PIR understates Día de Muertos by ~620 cs (POS +14%)',''],
+    ['31.10.2026','CusOrd','0001204588/10','−1,520','<span class="wn">350</span>','2,190','<span class="pill p-warn">below safety stock</span>',''],
+    ['01.11.2026','PlOrd','0000451221 · line MX01-L2','+3,000','—','5,190','<span class="pill p-ai">AI pull-in −3 d</span> line at 82% capacity','ai'],
+    ['02.11.2026','IndReq','VSF · PIR','−1,180','<span class="dn"><b>−830</b></span>','4,010','<span class="pill p-neg">stock-out as-is</span>',''],
+    ['04.11.2026','PlOrd','0000451221 (original date)','+3,000','2,170','moved','',''],
+    ['11.11.2026','PlOrd','AI proposal · line MX01-L2','+1,100','—','3,950','<span class="pill p-ai">AI add</span> Buen Fin TPR missing from PIR','ai'],
+    ['16.11.2026','IndReq','VSF · PIR · Buen Fin 13–16 Nov','−3,600','<span class="dn"><b>−290</b></span>','2,650','<span class="pill p-neg">2nd stock-out as-is</span>','']].map(r=>`<tr class="${r[7]==='ai'?'aiw':''}"><td>${r[0]}</td><td><b>${r[1]}</b></td><td class="mut">${r[2]}</td><td class="r">${r[3]}</td><td class="r">${r[4]}</td><td class="r"><b>${r[5]}</b></td><td style="font-size:11px">${r[6]}</td></tr>`).join('')}</tbody>`;
+  $('#sapQ').innerHTML=[['STO (UB) · GDL → CDMX · 1,840 cs','ME21N · API_PURCHASEORDER_PROCESS_SRV','Supply planner MX'],['PIR change · Dulcera 90g · +5,950 cs','MD61 · BAPI_REQUIREMENTS_CHANGE','Demand planner MX'],['Price condition K007 · 5% · 28 Oct–17 Nov','VK11 · Hiper Nacional','RGM manager MX'],['Planned order 451221 · pull-in 3 days','MD12 · API_PLANNED_ORDERS','Plant scheduler MX01']].map(q=>`<div class="qi"><b>${q[0]}</b><div class="meta">${q[1]} · approver: ${q[2]}</div><div class="acts"><button class="btn pri sm" data-toast="Approved · posted to SAP mock replica · logged in audit trail">Approve</button><button class="btn sm ghost">Preview payload</button></div></div>`).join('')+'<div class="mut" style="font-size:10.5px">Demo mode: write-backs are simulated and logged with user, timestamp &amp; payload. No SAP system is changed.</div>';
+}
+
+/* ---------- 8. demo ---------- */
+function renderDemo(){
+  $('#dmScn').innerHTML=[['Competitor price cut','Helvetia −12% in CDMX modern trade','pricing'],['Heat wave','Monterrey 41°C, Mérida 39°C: melt risk + demand dip','routes'],['Huaico in Peru','Carretera Central closed at km 98','routes'],['Rio Negro low water','Manaus barge capacity −35%','inventory'],['Cocoa futures +8%','COGS shock → pass-through plan','pricing'],['Argentina CPI print','2.4% m/m → indexation update','pricing'],['Trucker strike, Brazil','BR-116 blockades for 48 h','routes']].map(s=>`<div class="scn"><span class="dot warn"></span><div><b>${s[0]}</b><div class="d">${s[1]}</div></div><button class="btn sm" data-inject="${s[0]}" data-to="${s[2]}">Inject</button></div>`).join('');
+  $('#dmScript').innerHTML=[['Command Center','AI morning briefing: five signals, one decision each','2 min'],['Pricing & Promotions','Competitor cut → three options → what-if → approve TPR','4 min'],['Market Pulse','Trends, regulation, weather: why LATAM is different','2 min'],['Demand Forecast','AI vs SAP IBP baseline, explain the gap, write PIRs back','3 min'],['Inventory + SAP overlay','MD04 with AI annotations → STO draft','2 min'],['Route Optimizer','Inject the huaico live, re-route in 3 s','3 min'],['Copilot','Ask in Spanish & Portuguese, then flip to cache mode to show offline resilience','2 min']].map((s,i)=>`<div class="step"><span class="n">${i+1}</span><div><b>${s[0]}</b><div class="mut" style="font-size:11.5px">${s[1]}</div></div><span class="t">${s[2]}</span></div>`).join('');
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-inject]');if(!b)return;toast(`Scenario injected: <b>${b.dataset.inject}</b>. Alerts, forecasts and recommendations refresh in about 3 s`,'neg');const c=$('#cntOv');c.textContent=+c.textContent+1;addTicker(`<span class="al">ALERT · ${b.dataset.inject}</span>`);});
+$('#iRate').oninput=e=>$('#vRate').textContent=e.target.value;
+
+/* ---------- ticker ---------- */
+const TK=[];function addTicker(h){TK.unshift(h);buildTicker();}
+(function(){const st=['Conveniencia 24h · Monterrey','Tienda de barrio · Iztapalapa','Hiper Nacional · Polanco','Atacarejo · Guarulhos','Supermercado · Medellín','Bodega · San Juan de Lurigancho','Mercadinho · Recife','Kiosco · Palermo','Super Andino · Las Condes','Marketplace · CDMX'],sk=[['Rayo 12g','MXN',10],['Dulcera 90g','MXN',39.9],['Fiesta Bites 150g','MXN',79],['Crunchita 35g','COP',2900],['Cacao Alto 100g','BRL',14.9],['Dulcera Zero 80g','CLP',2490],['Almendra Real 45g','PEN',4.5]],r=R(3);
+  for(let i=0;i<14;i++){const s=st[Math.floor(r()*st.length)],k=sk[Math.floor(r()*sk.length)],q=1+Math.floor(r()*24);TK.push(`<span>07:${String(30+i).padStart(2,'0')}:${String(Math.floor(r()*60)).padStart(2,'0')} · POS · ${s} · <b>${k[0]}</b> × ${q} · ${k[1]} ${fmtN(k[2]*q,k[2]<100?2:0)}</span>`);if(i===4)TK.push('<span class="al">ALERT · Helvetia 90g −12% detected · 41 stores CDMX</span>');if(i===9)TK.push('<span class="al">ALERT · Carretera Central closed km 98 (huaico)</span>');}buildTicker();})();
+function buildTicker(){const h=TK.join('');$('#track').innerHTML=h+h;}
+
+/* ---------- copilot ---------- */
+const QA={
+ 'Which DCs will stock out in the next 14 days?':{h:`<b>4 SKU × DC combinations</b> are projected below zero within 14 days. This uses the P50 forecast, open orders and planned receipts from SAP.<table><tr><th>DC</th><th>SKU</th><th>Date</th><th>Risk</th><th>Fix</th></tr><tr><td>CDMX</td><td>Fiesta 150g</td><td>2 Nov</td><td class="dn">78%</td><td>STO from GDL</td></tr><tr><td>REC</td><td>Dulcera Zero</td><td>3 Nov</td><td class="dn">64%</td><td>Expedite BR01 PO</td></tr><tr><td>MAO</td><td>Rayo 12g</td><td>8 Nov</td><td class="wn">58%</td><td>Pre-build via barge</td></tr><tr><td>LIM</td><td>Crunchita 35g</td><td>9 Nov</td><td class="wn">41%</td><td>Reallocate from AQP</td></tr></table>All four fixes are drafted in the SAP write-back queue for approval.`,t:['Intent → stockout_scan(horizon=14d)','DuckDB: MATDOC stock × 1,248 series','Forecast P50 + PLAF receipts + open VBAP orders','Monte-Carlo stock-out probability (2,000 draws)','Narrative generated · 6/6 figures grounded'],s:['SAP MATDOC','SAP PLAF','AI forecast v4']},
+ 'What if cocoa costs rise another 10%?':{h:`A further <b>+10% in cocoa</b> (55% hedged for H1-27) adds <b>+3.4% COGS</b> across LATAM, about $29M annualised. Unpriced, gross margin falls from 38.6% to <b>36.7%</b>.<br><br>The recommended mix recovers ~80%:<ul><li><b>MX:</b> hold the MXN 10 coin price point and launch Rayo Doble 20g at MXN 15; +2.5% list on 90g and above</li><li><b>BR:</b> +3.0% list in January, ahead of Páscoa</li><li><b>CO:</b> +4.0% (the health tax is already in the base)</li><li><b>AR:</b> fold +0.8 pp into the biweekly indexation</li></ul>Elasticity-weighted volume impact: <b>−1.6%</b>.`,t:['Intent → cost_shock(cocoa=+10%)','BOM cocoa share by SKU (MARC/STKO mock)','Hedge book coverage 55% H1-27','Elasticity model v3 · price optimizer with guardrails','Narrative generated · 9/9 figures grounded'],s:['SAP BOM','Hedge book (mock)','Elasticity v3']},
+ 'Explica el riesgo de rutas en Perú':{h:`El <b>huaico en la Carretera Central (km 98, San Mateo)</b> bloquea 6 cargas hacia Huancayo y Junín, con 41 clientes en la semana de Todos los Santos.<br><br>Plan recomendado:<ol><li><b>2 cargas urgentes</b> vía Canta–Cerro de Pasco: +9 h, solo de día, 38 km sin asfaltar, con escolta.</li><li><b>Cusco</b> se abastece desde el CD Arequipa (2,140 cajas disponibles), 19 h más rápido.</li><li>Las cargas no urgentes se consolidan y esperan 36 h la reapertura.</li></ol>Puntualidad: <b>61% → 94%</b>, con un costo de flete de +4.1%.`,t:['Intent → route_risk(country=PE)','Road alerts feed (mock) + VTTK shipments','OR-Tools VRP-TW re-solve · 186 stops · 2.8 s','Narrative generated in Spanish · 7/7 figures grounded'],s:['SAP VTTK','Road alerts','Route solver']},
+ 'Resumo da Páscoa 2027 em português':{h:`A <b>Páscoa 2027 cai em 28 de março</b>. Os pré-pedidos dos clientes-chave estão <b>+11%</b> vs. o ano passado nesta data.<ul><li>A previsão de IA eleva o plano de ovos de Páscoa em <b>+6%</b> na planta BR01 (Jundiaí).</li><li>A linha L3 chega a <b>94% de capacidade</b> em fevereiro, por isso a recomendação é antecipar a produção em 2 semanas.</li><li>Reservar <b>1.200 posições-palete climatizadas</b> em Cajamar.</li><li>Risco: a Helvetia antecipou a pré-venda em 2 semanas.</li></ul>`,t:['Intent → seasonal_outlook(event=Pascoa2027, market=BR)','SAP VBAP pre-orders · PBED PIRs · capacity (CRHD mock)','Forecast v4 seasonal model','Narrative generated in Portuguese · 6/6 figures grounded'],s:['SAP VBAP','Capacity','AI forecast v4']},
+ 'Draft an STO in SAP for CDMX':{h:`Drafted a <b>stock transport order (UB)</b> for approval. Nothing is posted until the supply planner approves.<div class="code" style="margin-top:6px">POST …/API_PURCHASEORDER_PROCESS_SRV/A_PurchaseOrder
+{ "PurchaseOrderType": "UB",
+  "CompanyCode": "MX10",
+  "PurchasingOrganization": "MX10",
+  "SupplyingPlant": "MX2D",
+  "to_PurchaseOrderItem": [{
+    "Material": "100058",
+    "Plant": "MX1D",
+    "OrderQuantity": "1840",
+    "PurchaseOrderQuantityUnit": "CS",
+    "ScheduleLineDeliveryDate": "2026-10-29" }] }</div><span class="pill p-warn" style="margin-top:6px">Simulated · goes to the write-back queue</span>`,t:['Intent → create_sto(dest=MX1D)','Source selection: GDL excess 71 d, lead time 1 d','Payload built from template, validated against schema','Queued for approval'],s:['SAP MATDOC','Write-back queue']}
+};
+function aiMsg(html,trace,src,ms){return `<div class="msg a"><div class="mh"><span class="ai-ic">${ico('spark',13)}</span><b style="font-size:12px">CABI</b><span class="mb ${LLM==='cache'?'cache':''}" style="margin-left:auto">${mbHTML(ms)}</span></div>${html}${src?`<div class="src-chips">${src.map(s=>`<span class="pill">${s}</span>`).join('')}</div>`:''}${trace?`<details><summary>Agent trace · ${trace.length} steps</summary><ol>${trace.map(t=>`<li>${t}</li>`).join('')}</ol></details>`:''}</div>`;}
+function ask(q){const body=$('#cpBody');body.insertAdjacentHTML('beforeend',`<div class="msg u">${q}</div><div class="msg a typing" id="typing"><span></span><span></span><span></span></div>`);body.scrollTop=body.scrollHeight;
+  const a=QA[q],delay=LLM==='cache'?350:1400;setTimeout(()=>{$('#typing').remove();body.insertAdjacentHTML('beforeend',a?aiMsg(a.h,a.t,a.s,LLM==='cache'?14:(1.6+Math.random()).toFixed(1)):aiMsg('In the full app this question goes to the analytics tools and the local Hugging Face model writes the answer. In cache mode, the closest cached answer is used, or a template narrative built from the computed facts.',null,null));body.scrollTop=body.scrollHeight;},delay);}
+function initCopilot(){
+  $('#cpBody').innerHTML=`<div class="msg u">¿Por qué estamos perdiendo participación en CDMX canal moderno esta semana?</div>`+aiMsg(`En la semana 44 nuestra participación en valor en canal moderno CDMX/Edomex cayó <b>−1.3 pp</b> (27.9% → 26.6%). Tres causas explican ~85%:<ol><li><b>Recorte de Helvetia</b>: −12% en Classic 90g en Hiper Nacional (41 tiendas). Nuestro índice de precio subió de 96 a 109.</li><li><b>Quiebre parcial de Fiesta Bites 150g</b> en 9 tiendas, con 6 días de cobertura en el CD CDMX en pleno Día de Muertos.</li><li><b>Menos exhibición secundaria</b>: −18% de puntos auditados vs. año anterior.</li></ol><b>Recomendación:</b> TPR focalizada de −5% (39.90 → 37.90) por 3 semanas, más un STO de 1,840 cajas GDL → CDMX. Costo en utilidad bruta: MXN −118k, frente a −303k si mantenemos el precio.`,['Intent → share_loss_diagnosis(MX, CDMX, MT, wk44)','DuckDB: POS sell-out · 41 stores · 12 wks','SAP VBAP sell-in + MATDOC stock','Price-gap & elasticity model v3','Narrative in Spanish (Qwen3-4B, 412 tokens, 2.3 s)','Grounding check ✓ 9/9 figures'],['POS · wk44','SAP VBAP/MATDOC','Shelf audit','Elasticity v3'],'2.3');
+  $('#cpSugg').innerHTML=Object.keys(QA).map(q=>`<span class="chip">${q}</span>`).join('');
+  $$('#cpSugg .chip').forEach(c=>c.onclick=()=>ask(c.textContent));
+  const send=()=>{const v=$('#cpIn').value.trim();if(v){ask(v);$('#cpIn').value='';}};$('#cpSend').onclick=send;$('#cpIn').onkeydown=e=>{if(e.key==='Enter')send();};
+}
+$('#fab').onclick=()=>$('#copilot').classList.add('open');$('#cpClose').onclick=()=>$('#copilot').classList.remove('open');
+
+/* ---------- navigation ---------- */
+const RENDER={overview:renderOverview,pricing:renderPricing,market:renderMarket,forecast:renderForecast,inventory:renderInventory,routes:renderRoutes,sap:renderSAP,demo:renderDemo};
+let cur='overview';
+function go(s){cur=s;$$('.nav').forEach(n=>n.classList.toggle('active',n.dataset.s===s));$$('.screen').forEach(x=>x.classList.toggle('active',x.id==='s-'+s));const sc=$('#s-'+s);$('#pgTitle').innerHTML=sc.dataset.title;$('#pgSub').innerHTML=sc.dataset.sub;$('#cpCtx').innerHTML=$('.nav.active').childNodes[1].textContent;RENDER[s]();setLLM(LLM);window.scrollTo({top:0});}
+$$('.nav').forEach(n=>n.onclick=()=>go(n.dataset.s));
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)go(b.dataset.go);const i=e.target.closest('[data-inject]');if(i&&i.dataset.to){}});
+$('#themeBtn').onclick=()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark';RENDER[cur]();};
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>RENDER[cur](),150);});
+initCopilot();go('overview');
+</script>
+</body>
+</html>

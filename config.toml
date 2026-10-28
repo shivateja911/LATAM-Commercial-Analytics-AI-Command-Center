@@ -1,0 +1,58 @@
+# CABI demo configuration. Everything here is safe to edit.
+
+[company]
+name = "Northstar Confections"
+region = "LATAM"
+tagline = "US-HQ · in LATAM since 1968 · 3 plants · 18 DCs"
+
+[demo]
+today = "2026-10-27"        # demo "now"; all data is generated relative to this date
+clock = "07:42"
+seed = 42
+annual_revenue_usd = 1.15e9 # synthetic data is scaled to this LATAM net revenue
+
+[llm]
+# auto  = Hugging Face model on this machine first, cached answers if it is slow, missing or ungrounded
+# live  = Hugging Face model only
+# cache = cached answers only (instant, offline-safe); template text when nothing is cached
+mode = "auto"
+model = "mlx-community/Qwen3-4B-Instruct-2507-4bit"
+timeout_s = 20
+max_tokens = 420
+temperature = 0.2
+preload = true              # load the model in the background at startup
+
+[[llm.models]]
+id = "mlx-community/Qwen3-4B-Instruct-2507-4bit"
+label = "Qwen3-4B-Instruct-2507 · 4-bit"
+size_gb = 2.3
+license = "Apache-2.0"
+
+[[llm.models]]
+id = "mlx-community/Qwen3-8B-4bit"
+label = "Qwen3-8B · 4-bit (higher quality, slower)"
+size_gb = 4.6
+license = "Apache-2.0"
+
+[[llm.models]]
+id = "mlx-community/Phi-4-mini-instruct-4bit"
+label = "Phi-4-mini-instruct · 4-bit"
+size_gb = 2.2
+license = "MIT"
+
+[[llm.models]]
+id = "mlx-community/Qwen3-1.7B-4bit"
+label = "Qwen3-1.7B · 4-bit (fastest)"
+size_gb = 1.0
+license = "Apache-2.0"
+
+[sap]
+mode = "mock"               # offline replica built from data/ (a live OData connector is not part of this demo)
+system = "S4P"
+release = "S/4HANA 2023"
+client = "100"
+odata_base_url = ""         # reserved for a future live connector
+
+[server]
+host = "127.0.0.1"
+port = 8000

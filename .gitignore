@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+data/cabi.duckdb
+data/sap_extracts/
+data/audit.log
+data/*.tmp
+.DS_Store
+.pytest_cache/
+.claude/
